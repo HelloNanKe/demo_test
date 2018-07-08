@@ -11,6 +11,7 @@
 
 <button onclick="BiLogin()">登录bi</button>
 <button onclick="BpmLogin()">bpm登录</button>
+<button onclick="CrmLogin()">crm登录</button>
 <script>
 
     function BiLogin() {
@@ -72,6 +73,69 @@
             }
         });
     }
+    
+    function CrmLogin() {
+        // $.ajax({
+        //     type: "GET",
+        //     url: "http://wxtestbusiness.nabeluse.com:5555",
+        //     contentType: "text/xml",
+        //     // dataType: "xml",
+        //     dataType: "jsonp",    //跨域json请求一定是jsonp
+        //     jsonp: "callback",
+        //     data: "soapRequest",
+        //     username: 'test123@ad',
+        //     password: 'test123',
+        //     xhrFields: {
+        //         withCredentials: true
+        //     },
+        //     success: function (res) {
+        //         console.info("res",res);
+        //         window.open("http://wxtestbusiness.nabeluse.com:5555");
+        //     },
+        //     error: function () {
+        //
+        //     }
+        // });
+
+
+        // var xhttp = new XMLHttpRequest();
+        var xhttp=getHttpObj();
+        xhttp.open("GET", "http://wxtestbusiness.nabeluse.com:5555", true,"test123@ad","test123");
+        xhttp.setRequestHeader("X-Requested-With", "XMLHttpRequest");
+        xhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded;");//缺少这句，后台无法获取参数
+        xhttp.withCredentials = true;
+        xhttp.send();
+        xhttp.onreadystatechange = function(){
+            if (xhttp.readyState == XMLHttpRequest.DONE) {
+                if (xhttp.status == 200){
+                    // doSomething(xhttp.responseText);
+                    window.open("http://wxtestbusiness.nabeluse.com:5555");
+
+                } else{
+                    console.log('There was a problem with the request.');
+                }
+            }
+        };
+
+
+    }
+
+    function getHttpObj() {
+        var httpobj = null;
+        try {
+            httpobj = new ActiveXObject("Msxml2.XMLHTTP");
+        }
+        catch (e) {
+            try {
+                httpobj = new ActiveXObject("Microsoft.XMLHTTP");
+            }
+            catch (e1) {
+                httpobj = new XMLHttpRequest();
+            }
+        }
+        return httpobj;
+    }
+
 
 </script>
 
