@@ -8,29 +8,31 @@
 <body>
 
 
-<button onclick="loginBpm()">登录bpm</button>
-<button onclick="doLogin()">登录bi</button>
-<button onclick="justChange()">只跳转</button>
-<button onclick="notJava()">不经过后端bpm</button>
+
+<button onclick="BiLogin()">登录bi</button>
+<button onclick="BpmLogin()">bpm登录</button>
 <script>
-    function loginBpm() {
+
+    function BiLogin() {
         $.ajax({
-            type: "GET",
-            url: "/queryBpm",
-            dataType: "json",
-            success: function (res) {
-                document.cookie = res.cookName + "=" + res.cookVal;
-                window.open(res.url);
+            type: "get",    //请求方式
+            async: false,    //是否异步
+            url: url,
+            dataType: "jsonp",    //跨域json请求一定是jsonp
+            jsonp: "callback",    //跨域请求的参数名，默认是callback
+            //jsonpCallback:"successCallback",    //自定义跨域参数值，回调函数名也是一样，默认为jQuery自动生成的字符串
+            // data: {"query": "civilnews"},    //请求参数
+            success: function (data) {
+                window.open("http://bpmtest.nabeluse.com");
+            },
+            error: function (res) {
+                window.open("http://bpmtest.nabeluse.com");
             }
         });
+
     }
 
-    function justChange() {
-        // location.href="http://bpmtest.nabeluse.com"
-        window.open("http://bpmtest.nabeluse.com");
-    }
-
-    function notJava() {
+    function BpmLogin() {
         var date = new Date();
         var url = "http://bpmtest.nabeluse.com/YZSoft/login/ajax_admin.ashx?do_login=true&action=login&posid=0&lis=" + date + "&uid=test&pwd=test&vercode=";
 
@@ -46,13 +48,14 @@
                 window.open("http://bpmtest.nabeluse.com");
             },
             error: function (res) {
-                getCokie();
+                getBpmCokie(url);
             }
         });
     }
 
 
-    function getCokie() {
+    function getBpmCokie(url) {
+
         $.ajax({
             type: "get",    //请求方式
             async: false,    //是否异步
@@ -69,6 +72,7 @@
             }
         });
     }
+
 </script>
 
 </body>
