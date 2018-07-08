@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Title</title>
+    <script src="http://libs.baidu.com/jquery/2.0.0/jquery.min.js"></script>
+</head>
+<body>
+
+
+<button onclick="loginBpm()">登录bpm</button>
+<button onclick="doLogin()">登录bi</button>
+<button onclick="justChange()">只跳转</button>
+<button onclick="notJava()">不经过后端bpm</button>
+<script>
+    function loginBpm() {
+        $.ajax({
+            type: "GET",
+            url: "/queryBpm",
+            dataType: "json",
+            success: function (res) {
+                document.cookie = res.cookName + "=" + res.cookVal;
+                window.open(res.url);
+            }
+        });
+    }
+
+    function justChange() {
+        // location.href="http://bpmtest.nabeluse.com"
+        window.open("http://bpmtest.nabeluse.com");
+    }
+
+    function notJava() {
+        var date = new Date();
+        var url = "http://bpmtest.nabeluse.com/YZSoft/login/ajax_admin.ashx?do_login=true&action=login&posid=0&lis=" + date + "&uid=test&pwd=test&vercode=";
+
+        $.ajax({
+            type: "get",    //请求方式
+            async: false,    //是否异步
+            url: url,
+            dataType: "jsonp",    //跨域json请求一定是jsonp
+            jsonp: "callback",    //跨域请求的参数名，默认是callback
+            //jsonpCallback:"successCallback",    //自定义跨域参数值，回调函数名也是一样，默认为jQuery自动生成的字符串
+            // data: {"query": "civilnews"},    //请求参数
+            success: function (data) {
+                window.open("http://bpmtest.nabeluse.com");
+            },
+            error: function (res) {
+                getCokie();
+            }
+        });
+    }
+
+
+    function getCokie() {
+        $.ajax({
+            type: "get",    //请求方式
+            async: false,    //是否异步
+            url: url,
+            dataType: "jsonp",    //跨域json请求一定是jsonp
+            jsonp: "callback",    //跨域请求的参数名，默认是callback
+            //jsonpCallback:"successCallback",    //自定义跨域参数值，回调函数名也是一样，默认为jQuery自动生成的字符串
+            // data: {"query": "civilnews"},    //请求参数
+            success: function (data) {
+                window.open("http://bpmtest.nabeluse.com");
+            },
+            error: function (res) {
+                window.open("http://bpmtest.nabeluse.com");
+            }
+        });
+    }
+</script>
+
+</body>
+</html>

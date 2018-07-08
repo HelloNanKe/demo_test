@@ -35,7 +35,7 @@ public class TestController {
     @RequestMapping(value = "/test2")
     public String test() {
         System.err.println("进入页面请求---->");
-        return "login";
+        return "login.html";
     }
 
 
