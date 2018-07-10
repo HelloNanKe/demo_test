@@ -13,7 +13,7 @@
 <button onclick="BpmLogin()">bpm登录</button>
 <button onclick="CrmLogin()">crm登录</button>
 <button onclick="crmLoginJava()">crm后端登录</button>
-<a href="http://localhost:8080/auth?url=http://wxtestbusiness.nabeluse.com:5555">直接跳转</a>
+<a href="http://localhost:8080/crmAuth">直接跳转</a>
 <script>
 
     function BiLogin() {
@@ -161,8 +161,8 @@
         var xhttp = getHttpObj();
         xhttp.open("GET", "http://wxtestbusiness.nabeluse.com:5555", true, "test123@ad", "test123");
         xhttp.withCredentials = true;
-        // xhttp.setRequestHeader("X-Requested-With", "XMLHttpRequest");
-        // xhttp.setRequestHeader("POWERED-BY-MENGXIANHUI", "Approve");
+        // xhttp.setRequestHeader("Cookie", document.cookie);
+        xhttp.setRequestHeader("POWERED-BY-MENGXIANHUI", "Approve");
         xhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded;");//缺少这句，后台无法获取参数
         // xhttp.setRequestHeader('Content-Type','application/x-www-form-urlencoded');
         xhttp.send();
@@ -207,8 +207,23 @@
             url: "/crmAuth",
             async: true,
             success: function (res) {
-                setCrmCookie(res);
+                // setCrmCookie(res);
                 // window.open("http://wxtestbusiness.nabeluse.com:5555/NobelDev/_root/homepage.aspx?etc=9100&pagemode=iframe&sitemappath=WorkPlace%7cMyWork%7cnav_reports");
+                $.ajax({
+                    type: "GET",
+                    url: "/setCookie",
+                    data:{cookie:document.cookie},
+                    success: function (res1) {
+                        console.log("返回的html页面:" + res1);
+                        window.open("http://wxtestbusiness.nabeluse.com:5555/NobelDev/main.aspx");
+                    },
+                    error: function (error) {
+                        alert("error:" + error);
+                        console.info("error", error);
+                        window.open("http://wxtestbusiness.nabeluse.com:5555");
+                    }
+                });
+
             }
         });
     }
@@ -216,31 +231,31 @@
 
     function setCrmCookie(res) {
         // alert(res.url);
-        alert("cookie:"+document.cookie);
+        alert("cookie:" + document.cookie);
         // xmlHttpQuery(document.cookie);
         $.ajax({
             type: "GET",
             // headers: {'ReqClientId' : res.ReqClientId },
-            headers: {"Cookie": document.cookie},
+            // headers: {"Cookie": document.cookie},
             dataType: "jsonp",    //跨域json请求一定是jsonp
-            
             crossDomain: true,
             xhrFields: {
                 withCredentials: true
             },
-            jsonpCallback:"success_jsonpCallback",
-            url: "http://wxtestbusiness.nabeluse.com:5555/NobelDev/_root/homepage.aspx?etc=9100&pagemode=iframe&sitemappath=WorkPlace%7cMyWork%7cnav_reports",
+            jsonpCallback: "success_jsonpCallback",
+            // url: "http://wxtestbusiness.nabeluse.com:5555/NobelDev/_root/homepage.aspx?etc=9100&pagemode=iframe&sitemappath=WorkPlace%7cMyWork%7cnav_reports",
+            url: "http://wxtestbusiness.nabeluse.com:5555/NobelDev/main.aspx",
             beforeSend: function (xhr) {
-                alert("beforeSend:"+res.ReqClientId);
+                alert("beforeSend:" + res.ReqClientId);
                 xhr.setRequestHeader("Cookie", document.cookie);
             },
-            success: function(res1){
-                console.log("返回的html页面:"+res1);
+            success: function (res1) {
+                console.log("返回的html页面:" + res1);
                 window.open(res.url);
             },
-            error:function (error) {
-                alert("error:"+error);
-                console.info("error",error);
+            error: function (error) {
+                alert("error:" + error);
+                console.info("error", error);
                 window.open("http://wxtestbusiness.nabeluse.com:5555");
             }
         });

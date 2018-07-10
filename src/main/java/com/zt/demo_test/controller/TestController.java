@@ -13,6 +13,7 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.io.HttpResponseWriter;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.CharArrayBuffer;
@@ -29,6 +30,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.net.CookieHandler;
 import java.net.CookieManager;
 import java.net.HttpCookie;
@@ -142,8 +144,10 @@ public class TestController {
         try {
             response1 = httpclient.execute(target, httpget, localContext);
             System.err.println("response1---->:" + response1);
+//            httpclient.get
             HttpEntity entity1 = response1.getEntity();
             String res = entityToString(entity1);
+
 //            System.err.println("获取到的html页面:-------------->"+res);
             if (entity1 != null) {
                 entity1.consumeContent();
