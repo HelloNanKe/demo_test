@@ -8,6 +8,6 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 public class MyInterceptorConfig extends WebMvcConfigurerAdapter {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(new ChanelInterceptor()).addPathPatterns("/**");
+//        registry.addInterceptor(new ChanelInterceptor()).addPathPatterns("/**");
     }
 }

@@ -8,13 +8,15 @@
 <body>
 
 
-
 <button onclick="BiLogin()">登录bi</button>
 <button onclick="BpmLogin()">bpm登录</button>
 <button onclick="CrmLogin()">crm登录</button>
+<button onclick="crmLoginJava()">crm后端登录</button>
+<a href="http://localhost:8080/auth?url=http://wxtestbusiness.nabeluse.com:5555">直接跳转</a>
 <script>
 
     function BiLogin() {
+        var url = "https://bi.nabeluse.com/ReportServer?op=fs_load&cmd=sso";
         $.ajax({
             type: "get",    //请求方式
             async: false,    //是否异步
@@ -22,16 +24,38 @@
             dataType: "jsonp",    //跨域json请求一定是jsonp
             jsonp: "callback",    //跨域请求的参数名，默认是callback
             //jsonpCallback:"successCallback",    //自定义跨域参数值，回调函数名也是一样，默认为jQuery自动生成的字符串
-            // data: {"query": "civilnews"},    //请求参数
+            data: {"fr_username": "test", "fr_password": "test"},
             success: function (data) {
-                window.open("http://bpmtest.nabeluse.com");
+                window.open("https://bi.nabeluse.com:443/ReportServer?op=fs");
             },
-            error: function (res) {
-                window.open("http://bpmtest.nabeluse.com");
+            error: function (err) {
+                console.info("err", err);
+                getBiCookie(url);
+                // window.open("https://bi.nabeluse.com:443/ReportServer?op=fs");
             }
         });
 
     }
+
+    function getBiCookie(url) {
+        $.ajax({
+            type: "get",    //请求方式
+            async: false,    //是否异步
+            url: url,
+            dataType: "jsonp",    //跨域json请求一定是jsonp
+            jsonp: "callback",    //跨域请求的参数名，默认是callback
+            //jsonpCallback:"successCallback",    //自定义跨域参数值，回调函数名也是一样，默认为jQuery自动生成的字符串
+            data: {"fr_username": "test", "fr_password": "test"},
+            success: function (data) {
+                window.open("https://bi.nabeluse.com:443/ReportServer?op=fs");
+            },
+            error: function (err) {
+                console.info("err", err);
+                window.open("https://bi.nabeluse.com:443/ReportServer?op=fs");
+            }
+        });
+    }
+
 
     function BpmLogin() {
         var date = new Date();
@@ -73,45 +97,83 @@
             }
         });
     }
-    
+
+    function make_base_auth(user, password) {
+        // var tok = user + ':' + password;
+        // var hash = Base64.encode(tok);
+        // return "Basic " + hash;
+    }
+
+    var auth = make_base_auth("test123@ad", "test123");
+
     function CrmLogin() {
-        // $.ajax({
-        //     type: "GET",
-        //     url: "http://wxtestbusiness.nabeluse.com:5555",
-        //     contentType: "text/xml",
-        //     // dataType: "xml",
-        //     dataType: "jsonp",    //跨域json请求一定是jsonp
-        //     jsonp: "callback",
-        //     data: "soapRequest",
-        //     username: 'test123@ad',
-        //     password: 'test123',
-        //     xhrFields: {
-        //         withCredentials: true
-        //     },
-        //     success: function (res) {
-        //         console.info("res",res);
-        //         window.open("http://wxtestbusiness.nabeluse.com:5555");
-        //     },
-        //     error: function () {
-        //
-        //     }
-        // });
+
+        /*     $.ajax({
+                 type: "GET",
+                 url: "http://wxtestbusiness.nabeluse.com:5555",
+                 contentType: "text/xml",
+                 dataType: "jsonp",    //跨域json请求一定是jsonp
+                 jsonp: "callback",
+                 data: {username:"test123@ad",password:"test123"},
+                 // username: 'test123@ad',
+                 // password: 'test123',
+                 xhrFields: {
+                     withCredentials: true
+                 },
+                 // beforeSend : function(req) {
+                 //     req.setRequestHeader('Authorization', auth);
+                 // },
+                 success: function (res) {
+                     console.info("res", res);
+                     window.open("http://wxtestbusiness.nabeluse.com:5555");
+                 },
+                 error: function (err) {
+                     console.info("ajax域认证出错", err);
+                 }
+             });
+     */
+
+        /* $.ajax({
+             type: "GET",
+             url: "http://wxtestbusiness.nabeluse.com:5555",
+             contentType: "text/xml",
+             dataType: "jsonp",    //跨域json请求一定是jsonp
+             jsonp: "callback",
+             // data: "soapRequest",
+             username: 'test123@ad',
+             password: 'test123',
+             xhrFields: {
+                 withCredentials: true
+             },
+             success: function (res) {
+                 console.info("res",res);
+                 window.open("http://wxtestbusiness.nabeluse.com:5555");
+             },
+             error: function (err) {
+                 console.info("ajax域认证出错",err);
+             }
+         });*/
 
 
         // var xhttp = new XMLHttpRequest();
-        var xhttp=getHttpObj();
-        xhttp.open("GET", "http://wxtestbusiness.nabeluse.com:5555", true,"test123@ad","test123");
-        xhttp.setRequestHeader("X-Requested-With", "XMLHttpRequest");
-        xhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded;");//缺少这句，后台无法获取参数
+        //
+        var xhttp = getHttpObj();
+        xhttp.open("GET", "http://wxtestbusiness.nabeluse.com:5555", true, "test123@ad", "test123");
         xhttp.withCredentials = true;
+        // xhttp.setRequestHeader("X-Requested-With", "XMLHttpRequest");
+        // xhttp.setRequestHeader("POWERED-BY-MENGXIANHUI", "Approve");
+        xhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded;");//缺少这句，后台无法获取参数
+        xhttp.setRequestHeader('Content-Type','application/x-www-form-urlencoded');
         xhttp.send();
-        xhttp.onreadystatechange = function(){
+        xhttp.onreadystatechange = function () {
+
             if (xhttp.readyState == XMLHttpRequest.DONE) {
-                if (xhttp.status == 200){
+
+                if (xhttp.status == 200) {
                     // doSomething(xhttp.responseText);
                     window.open("http://wxtestbusiness.nabeluse.com:5555");
 
-                } else{
+                } else {
                     console.log('There was a problem with the request.');
                 }
             }
@@ -136,6 +198,29 @@
         return httpobj;
     }
 
+
+    function crmLoginJava() {
+        $.ajax({
+            type: "GET",
+            url: "/crmAuth",
+            async: true,
+            success: function (res) {
+
+                // $.ajax({
+                //     type: "GET",
+                //     headers: {'ReqClientId' : res.ReqClientId },
+                //     url: res.url,
+                //     success: function(res1){
+                //         location.href=res.url;
+                //     }
+                // });
+                // $.cookie();
+
+                window.open(res.url);
+                // location.href=res.url;
+            }
+        });
+    }
 
 </script>
 

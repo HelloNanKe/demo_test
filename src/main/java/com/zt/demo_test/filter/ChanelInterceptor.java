@@ -1,5 +1,6 @@
 package com.zt.demo_test.filter;
 
+import org.apache.catalina.connector.Request;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -8,6 +9,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.lang.reflect.Field;
 
 @Component
 public class ChanelInterceptor implements HandlerInterceptor {
@@ -16,7 +18,16 @@ public class ChanelInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object o) throws Exception {
         logger.info("============================拦截器启动==============================");
-        request.setAttribute("starttime",System.currentTimeMillis());
+        request.setAttribute("starttime", System.currentTimeMillis());
+        String url = request.getParameter("url");
+        System.err.println("跳转的url:" + url);
+        System.err.println("getRequestURL:" + request.getRequestURL());
+        System.err.println("getRemoteAddr:" + request.getRemoteAddr());
+
+//        Field field = Request.class.getDeclaredField("remoteAddr");
+//        field.setAccessible(true);
+//        field.set("remoteAddr",url);
+
         return true;
     }
 
@@ -26,7 +37,7 @@ public class ChanelInterceptor implements HandlerInterceptor {
         long starttime = (long) request.getAttribute("starttime");
         request.removeAttribute("starttime");
         long endtime = System.currentTimeMillis();
-        logger.info("============请求地址："+request.getRequestURI()+"：处理时间：{}",(endtime-starttime)+"ms");
+        logger.info("============请求地址：" + request.getRequestURI() + "：处理时间：{}", (endtime - starttime) + "ms");
     }
 
     @Override
