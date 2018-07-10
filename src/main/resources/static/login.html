@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8"/>
     <title>Title</title>
-    <script src="http://libs.baidu.com/jquery/2.0.0/jquery.min.js"></script>
+    <!--<script src="http://libs.baidu.com/jquery/2.0.0/jquery.min.js"></script>-->
+    <script src="http://apps.bdimg.com/libs/jquery/2.1.1/jquery.min.js"></script>
 </head>
 <body>
 
@@ -163,7 +164,7 @@
         // xhttp.setRequestHeader("X-Requested-With", "XMLHttpRequest");
         // xhttp.setRequestHeader("POWERED-BY-MENGXIANHUI", "Approve");
         xhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded;");//缺少这句，后台无法获取参数
-        xhttp.setRequestHeader('Content-Type','application/x-www-form-urlencoded');
+        // xhttp.setRequestHeader('Content-Type','application/x-www-form-urlencoded');
         xhttp.send();
         xhttp.onreadystatechange = function () {
 
@@ -200,28 +201,76 @@
 
 
     function crmLoginJava() {
+
         $.ajax({
             type: "GET",
             url: "/crmAuth",
             async: true,
             success: function (res) {
-
-                // $.ajax({
-                //     type: "GET",
-                //     headers: {'ReqClientId' : res.ReqClientId },
-                //     url: res.url,
-                //     success: function(res1){
-                //         location.href=res.url;
-                //     }
-                // });
-                // $.cookie();
-
-                window.open(res.url);
-                // location.href=res.url;
+                setCrmCookie(res);
+                // window.open("http://wxtestbusiness.nabeluse.com:5555/NobelDev/_root/homepage.aspx?etc=9100&pagemode=iframe&sitemappath=WorkPlace%7cMyWork%7cnav_reports");
             }
         });
     }
 
+
+    function setCrmCookie(res) {
+        // alert(res.url);
+        alert("cookie:"+document.cookie);
+        // xmlHttpQuery(document.cookie);
+        $.ajax({
+            type: "GET",
+            // headers: {'ReqClientId' : res.ReqClientId },
+            headers: {"Cookie": document.cookie},
+            dataType: "jsonp",    //跨域json请求一定是jsonp
+            
+            crossDomain: true,
+            xhrFields: {
+                withCredentials: true
+            },
+            jsonpCallback:"success_jsonpCallback",
+            url: "http://wxtestbusiness.nabeluse.com:5555/NobelDev/_root/homepage.aspx?etc=9100&pagemode=iframe&sitemappath=WorkPlace%7cMyWork%7cnav_reports",
+            beforeSend: function (xhr) {
+                alert("beforeSend:"+res.ReqClientId);
+                xhr.setRequestHeader("Cookie", document.cookie);
+            },
+            success: function(res1){
+                console.log("返回的html页面:"+res1);
+                window.open(res.url);
+            },
+            error:function (error) {
+                alert("error:"+error);
+                console.info("error",error);
+                window.open("http://wxtestbusiness.nabeluse.com:5555");
+            }
+        });
+    }
+
+    function success_jsonpCallback(data) {
+        alert("callback");
+    }
+
+
+    function xmlHttpQuery(cookie) {
+        var xhttp = getHttpObj();
+        xhttp.open("GET", "http://wxtestbusiness.nabeluse.com:5555", true);
+        xhttp.withCredentials = true;
+        // xhttp.setRequestHeader("X-Requested-With", "XMLHttpRequest");
+        xhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded;");//缺少这句，后台无法获取参数
+        xhttp.setRequestHeader("Cookie", cookie);
+        xhttp.send();
+        xhttp.onreadystatechange = function () {
+            if (xhttp.readyState == XMLHttpRequest.DONE) {
+                if (xhttp.status == 200) {
+                    // doSomething(xhttp.responseText);
+                    window.open("http://wxtestbusiness.nabeluse.com:5555");
+                } else {
+                    console.log('There was a problem with the request.');
+                }
+            }
+        };
+
+    }
 </script>
 
 </body>

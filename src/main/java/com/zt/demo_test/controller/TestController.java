@@ -143,7 +143,8 @@ public class TestController {
             response1 = httpclient.execute(target, httpget, localContext);
             System.err.println("response1---->:" + response1);
             HttpEntity entity1 = response1.getEntity();
-
+            String res = entityToString(entity1);
+//            System.err.println("获取到的html页面:-------------->"+res);
             if (entity1 != null) {
                 entity1.consumeContent();
             }
@@ -154,34 +155,21 @@ public class TestController {
 //                ReqClientId
                 System.err.println(cookie.getName() + "-----------------》" + cookie.getValue());
                 response.addCookie(new Cookie(cookie.getName(), cookie.getValue()));
+                map.put(cookie.getName(), cookie.getValue());
             }
 
-
-//            response.addHeader("http.request", (String) localContext.getAttribute("http.request"));
-            response.addHeader("http.request-config", localContext.getAttribute("http.request-config").toString());
-//            response.addHeader("http.user-token", (String) localContext.getAttribute("http.user-token"));
-//            response.addHeader("http.auth.proxy-scope", (String) localContext.getAttribute("http.auth.proxy-scope"));
-//            response.addHeader("http.request_sent", (String) localContext.getAttribute("http.request_sent"));
-//            response.addHeader("http.cookie-spec", (String) localContext.getAttribute("http.cookie-spec"));
-//            response.addHeader("http.connection", (String) localContext.getAttribute("http.connection"));
-//            response.addHeader("http.auth.target-scope", (String) localContext.getAttribute("http.auth.target-scope"));
-//            response.addHeader("http.target_host", (String) localContext.getAttribute("http.target_host"));
-//            response.addHeader("http.route", (String) localContext.getAttribute("http.route"));
-//            response.addHeader("http.cookie-origin", (String) localContext.getAttribute("http.cookie-origin"));
-//            response.addHeader("http.response", (String) localContext.getAttribute("http.response"));
-
-
 //之后使用相同的内容（和连接）执行开销大的方法。
-            HttpGet httppost = new HttpGet("/NobelDev/main.aspx");
-//            httppost.setEntity(new StringEntity("lots and lots of data"));
-            HttpResponse response2 = httpclient.execute(target, httppost, localContext);
+       /*     HttpGet httpGet = new HttpGet("/NobelDev/main.aspx");
+            HttpResponse response2 = httpclient.execute(target, httpGet);
             System.err.println("response2------->:" + response2);
             HttpEntity entity2 = response2.getEntity();
             String resultStr = entityToString(entity2);
             InputStream inputStream = entity2.getContent();
             if (entity2 != null) {
                 entity2.consumeContent();
-            }
+            }*/
+            httpclient.close();
+
         } catch (IOException e) {
             e.printStackTrace();
         }
