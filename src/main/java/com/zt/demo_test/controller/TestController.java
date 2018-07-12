@@ -142,7 +142,9 @@ public class TestController {
                 entity1.consumeContent();
             }
             out = response.getWriter();
-            response.setContentType("text/html");
+            assert entity1 != null;
+            response.setContentType(entity1.getContentType().getValue());
+            response.setCharacterEncoding("gb2312");
             response.setHeader("Pragma", "No-cache");
             response.setHeader("Cache-Control", "no-cache");
             response.setDateHeader("Expires", 0);
@@ -178,7 +180,9 @@ public class TestController {
             }
             out = response.getWriter();
             //response.setCharacterEncoding("gb2312");
-            response.setContentType("text/html");
+            response.setContentType("MIME");
+            assert entity1 != null;
+            response.setCharacterEncoding(entity1.getContentType().getValue());
             response.setHeader("Pragma", "No-cache");
             response.setHeader("Cache-Control", "no-cache");
             response.setDateHeader("Expires", 0);
@@ -196,7 +200,7 @@ public class TestController {
 
 
     private String entityToString(HttpEntity entity) throws IOException {
-        String result = null;
+        String result = "";
         if (entity != null) {
 //            long lenth = entity.getContentLength();
 //            if (lenth != -1 && lenth < 2048) {
@@ -212,10 +216,11 @@ public class TestController {
 //                result = buffer.toString();
 //            }
 
-            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(entity.getContent(),"utf-8"));
-            String line = null;
+            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(entity.getContent(), "utf-8"));
+            String line = "";
             while ((line = bufferedReader.readLine()) != null) {
                 result += line + "\n";
+
             }
         }
         return result;
