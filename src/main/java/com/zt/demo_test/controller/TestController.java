@@ -129,65 +129,74 @@ public class TestController {
 
     @RequestMapping(value = "/crmAuth")
     public void crmAuth(HttpServletRequest request, HttpServletResponse response) {
-        Map<String, Object> map = new HashMap<>();
-        map.put("url", "http://wxtestbusiness.nabeluse.com:5555");
         DefaultHttpClient httpclient = new DefaultHttpClient();
-//        NTCredentials creds = new NTCredentials("user", "pwd", "myworkstation", "microsoft.com");
         NTCredentials creds = new NTCredentials("test123@ad:test123");
         httpclient.getCredentialsProvider().setCredentials(AuthScope.ANY, creds);
         HttpHost target = new HttpHost("wxtestbusiness.nabeluse.com", 5555, "http");
-// 保证相同的内容来用于执行逻辑相关的请求
-        HttpContext localContext = new BasicHttpContext();
-// 首先执行简便的方法。这会触发NTLM认证
         HttpGet httpget = new HttpGet("/NobelDev/main.aspx");
         HttpResponse response1 = null;
+        PrintWriter out=null;
         try {
-
-            response1 = httpclient.execute(target, httpget, localContext);
-            UserTokenHandler userTokenHandler = httpclient.getUserTokenHandler();
-            Object o = userTokenHandler.getUserToken(localContext);
-            System.err.println("response1---->:" + response1);
-//            httpclient.get
-
+            response1 = httpclient.execute(target, httpget);
             HttpEntity entity1 = response1.getEntity();
             String res = entityToString(entity1);
 //            System.err.println("获取到的html页面:-------------->"+res);
             if (entity1 != null) {
                 entity1.consumeContent();
             }
-
-            CookieStore cookieStore2 = httpclient.getCookieStore();
-            List<org.apache.http.cookie.Cookie> list = cookieStore2.getCookies();
-            for (org.apache.http.cookie.Cookie cookie : list) {
-//                ReqClientId
-                System.err.println(cookie.getName() + "-----------------》" + cookie.getValue());
-                response.addCookie(new Cookie(cookie.getName(), cookie.getValue()));
-                map.put(cookie.getName(), cookie.getValue());
-            }
-
-//之后使用相同的内容（和连接）执行开销大的方法。
-       /*     HttpGet httpGet = new HttpGet("/NobelDev/main.aspx");
-            HttpResponse response2 = httpclient.execute(target, httpGet);
-            System.err.println("response2------->:" + response2);
-            HttpEntity entity2 = response2.getEntity();
-            String resultStr = entityToString(entity2);
-            InputStream inputStream = entity2.getContent();
-            if (entity2 != null) {
-                entity2.consumeContent();
-            }*/
-//                   System.err.println("请求到的html数据:"+res);
-            PrintWriter out=response.getWriter();
+            out = response.getWriter();
+            response.setContentType("text/html");
+            response.setHeader("Pragma", "No-cache");
+            response.setHeader("Cache-Control", "no-cache");
+            response.setDateHeader("Expires", 0);
             out.write(res);
             out.flush();
-
-            httpclient.close();
+            out.close();
         } catch (IOException e) {
             e.printStackTrace();
-
+        }finally {
+            httpclient.close();
+            assert out != null;
+            out.close();
         }
-
-//        return map;
     }
+
+
+    @RequestMapping(value = "/NobelDev/**")
+    public void nobeluse(HttpServletRequest request, HttpServletResponse response) {
+        DefaultHttpClient httpclient = new DefaultHttpClient();
+        NTCredentials creds = new NTCredentials("test123@ad:test123");
+        httpclient.getCredentialsProvider().setCredentials(AuthScope.ANY, creds);
+        HttpHost target = new HttpHost("wxtestbusiness.nabeluse.com", 5555, "http");
+        HttpGet httpget = new HttpGet(request.getRequestURI());
+        HttpResponse response1 = null;
+        PrintWriter out=null;
+        try {
+            response1 = httpclient.execute(target, httpget);
+            HttpEntity entity1 = response1.getEntity();
+            String res = entityToString(entity1);
+//            System.err.println("获取到的html页面:-------------->"+res);
+            if (entity1 != null) {
+                entity1.consumeContent();
+            }
+            out = response.getWriter();
+            //response.setCharacterEncoding("gb2312");
+            response.setContentType("text/html");
+            response.setHeader("Pragma", "No-cache");
+            response.setHeader("Cache-Control", "no-cache");
+            response.setDateHeader("Expires", 0);
+            out.write(res);
+            out.flush();
+            out.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }finally {
+            httpclient.close();
+            assert out != null;
+            out.close();
+        }
+    }
+
 
 
     private String entityToString(HttpEntity entity) throws IOException {
@@ -195,9 +204,9 @@ public class TestController {
         if (entity != null) {
             long lenth = entity.getContentLength();
             if (lenth != -1 && lenth < 2048) {
-                result = EntityUtils.toString(entity, "UTF-8");
+                result = EntityUtils.toString(entity, "gb2312");
             } else {
-                InputStreamReader reader1 = new InputStreamReader(entity.getContent(), "UTF-8");
+                InputStreamReader reader1 = new InputStreamReader(entity.getContent(), "gb2312");
                 CharArrayBuffer buffer = new CharArrayBuffer(2048);
                 char[] tmp = new char[1024];
                 int l;

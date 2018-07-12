@@ -30,27 +30,27 @@ public class StaticResourceController {
 
     private static final String STATIC_RESOURCE="http://wxtestbusiness.nabeluse.com:5555";
 
-    @RequestMapping(value = "/NobelDev/**")
-    @ResponseBody
-    public String cssGet(HttpServletRequest request, HttpServletResponse response){
-        System.err.println("进入静态资源请求:NobelDev:"+request.getRequestURI());
-      return  getJsonFromServer(STATIC_RESOURCE+request.getRequestURI());
-    }
+//    @RequestMapping(value = "/NobelDev/**")
+//    @ResponseBody
+//    public String cssGet(HttpServletRequest request, HttpServletResponse response){
+//        System.err.println("进入静态资源请求:NobelDev:"+request.getRequestURI());
+//      return  getJsonFromServer(STATIC_RESOURCE+request.getRequestURI());
+//    }
 
 
-    @RequestMapping(value = "/_static/**")
-    @ResponseBody
-    public String formGet(HttpServletRequest request,HttpServletResponse response){
-        System.err.println("进入静态资源请求:_static:"+request.getRequestURI());
-       return getJsonFromServer(STATIC_RESOURCE+request.getRequestURI());
-    }
-
-    @RequestMapping(value = "/_imgs/**")
-    @ResponseBody
-    public byte[] imgsGet(HttpServletRequest request,HttpServletResponse response){
-        System.err.println("进入静态资源请求:_static:"+request.getRequestURI());
-      return   getImageFromNetByUrl(STATIC_RESOURCE+request.getRequestURI());
-    }
+//    @RequestMapping(value = "/_static/**")
+//    @ResponseBody
+//    public String formGet(HttpServletRequest request,HttpServletResponse response){
+//        System.err.println("进入静态资源请求:_static:"+request.getRequestURI());
+//       return getJsonFromServer(STATIC_RESOURCE+request.getRequestURI());
+//    }
+//
+//    @RequestMapping(value = "/_imgs/**")
+//    @ResponseBody
+//    public byte[] imgsGet(HttpServletRequest request,HttpServletResponse response){
+//        System.err.println("进入静态资源请求:_static:"+request.getRequestURI());
+//      return   getImageFromNetByUrl(STATIC_RESOURCE+request.getRequestURI());
+//    }
 
     public static byte[] getImageFromNetByUrl(String strUrl){
         try {
