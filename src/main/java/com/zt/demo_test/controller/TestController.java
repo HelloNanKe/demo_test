@@ -86,43 +86,6 @@ public class TestController {
         return map;
     }
 
-   /* BPM测试
-    http://bpmtest.nabeluse.com/ 
-    http://bpmtest.nabeluse.com/YZSoft/login/ajax_admin.ashx?do_login=true&action=login&posid=0&lis=%E4%B8%8B%E5%8D%882%3A02%3A55&uid=test&pwd=123456&vercode=
-    test/test
-    https://bi.nabeluse.com/ 
-    test/test*/
-
-//    @RequestMapping(value = "/queryBpm")
-//    @ResponseBody
-/*    public Map<String, Object> queryBpm(HttpServletResponse response, HttpServletRequest request) {
-        Map<String, Object> map = new HashMap<>();
-        try {
-            CookieManager manager = new CookieManager();
-            CookieHandler.setDefault(manager);
-            HttpClient httpClient = new DefaultHttpClient();
-
-            HttpGet httpGet = new HttpGet("/YZSoft/login/ajax_admin.ashx?do_login=true&action=login&posid=0&lis=" + URLEncoder.encode(new Date().toString()) + "&uid=test&pwd=test&vercode=");
-            HttpHost httpHost = new HttpHost("bpmtest.nabeluse.com", 80, "http");
-            HttpResponse response1 = httpClient.execute(httpHost, httpGet);
-            Header[] headers = response1.getAllHeaders();
-            for (Header header : headers) {
-                System.err.println(header.getName() + "->" + header.getValue());
-            }
-            CookieStore cookieJar = manager.getCookieStore();
-            List<HttpCookie> cookies = cookieJar.getCookies();
-
-            for (HttpCookie cookie : cookies) {
-                System.err.println(cookie);
-            }
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        map.put("url", "http://bpmtest.nabeluse.com");
-        return map;
-    }*/
-
 
     @RequestMapping(value = "/crmAuth")
     public void crmAuth(HttpServletRequest request, HttpServletResponse response) {
@@ -149,7 +112,6 @@ public class TestController {
             response.setDateHeader("Expires", 0);
             out.write(res);
             out.flush();
-            out.close();
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
@@ -161,6 +123,44 @@ public class TestController {
 
 
     @RequestMapping(value = "/NobelDev/**")
+    public void nobeluse1(HttpServletRequest request, HttpServletResponse response) {
+        DefaultHttpClient httpclient = new DefaultHttpClient();
+        NTCredentials creds = new NTCredentials("test123@ad:test123");
+        httpclient.getCredentialsProvider().setCredentials(AuthScope.ANY, creds);
+        HttpHost target = new HttpHost("wxtestbusiness.nabeluse.com", 5555, "http");
+        HttpGet httpget = new HttpGet(request.getRequestURI());
+        HttpResponse response1 = null;
+
+        PrintWriter out = null;
+        try {
+            response1 = httpclient.execute(target, httpget);
+            HttpEntity entity1 = response1.getEntity();
+            String res = entityToString(entity1);
+//            System.err.println("获取到的html页面:-------------->"+res);
+            if (entity1 != null) {
+                entity1.consumeContent();
+            }
+            out = response.getWriter();
+            //response.setCharacterEncoding("gb2312");
+            assert entity1 != null;
+            response.setContentType(entity1.getContentType().getValue());
+            response.setHeader("Pragma", "No-cache");
+            response.setHeader("Cache-Control", "no-cache");
+            response.setDateHeader("Expires", 0);
+            out.write(res);
+            out.flush();
+            out.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            httpclient.close();
+        }
+    }
+
+
+
+
+    @RequestMapping(value = "/NobelDev1/_forms/**")
     public void nobeluse(HttpServletRequest request, HttpServletResponse response) {
         DefaultHttpClient httpclient = new DefaultHttpClient();
         NTCredentials creds = new NTCredentials("test123@ad:test123");
@@ -173,8 +173,8 @@ public class TestController {
         try {
             response1 = httpclient.execute(target, httpget);
             HttpEntity entity1 = response1.getEntity();
-
-            if(response1.getStatusLine().getStatusCode()!=200){
+            int status = response1.getStatusLine().getStatusCode();
+            if (response1.getStatusLine().getStatusCode() != 200) {
                 return;
             }
             String res = entityToString(entity1);
@@ -197,9 +197,35 @@ public class TestController {
             e.printStackTrace();
         } finally {
             httpclient.close();
-            assert out != null;
-            out.close();
         }
+    }
+
+    /**
+     * crm json数据接口处理
+     * @param request
+     * @param response
+     * @return
+     */
+    @RequestMapping(value = "/NobelDev1/api/**")
+    @ResponseBody
+    public String apiHandle(HttpServletRequest request, HttpServletResponse response) {
+        DefaultHttpClient httpclient = new DefaultHttpClient();
+        NTCredentials creds = new NTCredentials("test123@ad:test123");
+        httpclient.getCredentialsProvider().setCredentials(AuthScope.ANY, creds);
+        HttpHost target = new HttpHost("wxtestbusiness.nabeluse.com", 5555, "http");
+        HttpGet httpget = new HttpGet(request.getRequestURI());
+        HttpResponse response1 = null;
+        PrintWriter out = null;
+        try {
+            response1 = httpclient.execute(target, httpget);
+            HttpEntity entity1 = response1.getEntity();
+            return entityToString(entity1);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            httpclient.close();
+        }
+        return null;
     }
 
 
