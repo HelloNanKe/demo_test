@@ -144,7 +144,6 @@ public class TestController {
             out = response.getWriter();
             assert entity1 != null;
             response.setContentType(entity1.getContentType().getValue());
-            response.setCharacterEncoding("gb2312");
             response.setHeader("Pragma", "No-cache");
             response.setHeader("Cache-Control", "no-cache");
             response.setDateHeader("Expires", 0);
@@ -169,10 +168,15 @@ public class TestController {
         HttpHost target = new HttpHost("wxtestbusiness.nabeluse.com", 5555, "http");
         HttpGet httpget = new HttpGet(request.getRequestURI());
         HttpResponse response1 = null;
+
         PrintWriter out = null;
         try {
             response1 = httpclient.execute(target, httpget);
             HttpEntity entity1 = response1.getEntity();
+
+            if(response1.getStatusLine().getStatusCode()!=200){
+                return;
+            }
             String res = entityToString(entity1);
 //            System.err.println("获取到的html页面:-------------->"+res);
             if (entity1 != null) {
@@ -180,9 +184,9 @@ public class TestController {
             }
             out = response.getWriter();
             //response.setCharacterEncoding("gb2312");
-            response.setContentType("MIME");
             assert entity1 != null;
-            response.setCharacterEncoding(entity1.getContentType().getValue());
+            response.setContentType(entity1.getContentType().getValue());
+//            response.setCharacterEncoding(entity1.getContentType().getValue());
             response.setHeader("Pragma", "No-cache");
             response.setHeader("Cache-Control", "no-cache");
             response.setDateHeader("Expires", 0);
