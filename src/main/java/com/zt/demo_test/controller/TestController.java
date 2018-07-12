@@ -144,7 +144,6 @@ public class TestController {
             out = response.getWriter();
             assert entity1 != null;
             response.setContentType(entity1.getContentType().getValue());
-            response.setCharacterEncoding("gb2312");
             response.setHeader("Pragma", "No-cache");
             response.setHeader("Cache-Control", "no-cache");
             response.setDateHeader("Expires", 0);
@@ -180,9 +179,9 @@ public class TestController {
             }
             out = response.getWriter();
             //response.setCharacterEncoding("gb2312");
-            response.setContentType("MIME");
             assert entity1 != null;
-            response.setCharacterEncoding(entity1.getContentType().getValue());
+            response.setContentType(entity1.getContentType().getValue());
+//            response.setCharacterEncoding(entity1.getContentType().getValue());
             response.setHeader("Pragma", "No-cache");
             response.setHeader("Cache-Control", "no-cache");
             response.setDateHeader("Expires", 0);
