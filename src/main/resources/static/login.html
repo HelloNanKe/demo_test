@@ -13,8 +13,12 @@
 <button onclick="BpmLogin()">bpm登录</button>
 <button onclick="CrmLogin()">crm登录</button>
 <button onclick="crmLoginJava()">crm后端登录</button>
-<a href="http://localhost:8080/crmAuth">直接跳转</a>
+<a  onclick="justTiao()">直接跳转</a>
 <script>
+
+    function justTiao() {
+        window.open("/crmAuth");
+    }
 
     function BiLogin() {
         var url = "https://bi.nabeluse.com/ReportServer?op=fs_load&cmd=sso";
@@ -212,15 +216,15 @@
                 $.ajax({
                     type: "GET",
                     url: "/setCookie",
-                    data:{cookie:document.cookie},
+                    data:{cookie:res.ReqClientId},
                     success: function (res1) {
                         console.log("返回的html页面:" + res1);
-                        window.open("http://wxtestbusiness.nabeluse.com:5555/NobelDev/main.aspx");
+                        // window.open("http://wxtestbusiness.nabeluse.com:5555/NobelDev/main.aspx");
                     },
                     error: function (error) {
                         alert("error:" + error);
                         console.info("error", error);
-                        window.open("http://wxtestbusiness.nabeluse.com:5555");
+                        // window.open("http://wxtestbusiness.nabeluse.com:5555");
                     }
                 });
 

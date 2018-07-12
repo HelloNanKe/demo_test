@@ -18,26 +18,14 @@ public class ChanelInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object o) throws Exception {
         logger.info("============================拦截器启动==============================");
-        request.setAttribute("starttime", System.currentTimeMillis());
-        String url = request.getParameter("url");
-        System.err.println("跳转的url:" + url);
-        System.err.println("getRequestURL:" + request.getRequestURL());
-        System.err.println("getRemoteAddr:" + request.getRemoteAddr());
-
-//        Field field = Request.class.getDeclaredField("remoteAddr");
-//        field.setAccessible(true);
-//        field.set("remoteAddr",url);
-
+        System.err.println("getRequestURI:" + request.getRequestURI());
         return true;
     }
 
     @Override
     public void postHandle(HttpServletRequest request, HttpServletResponse response, Object o, ModelAndView modelAndView) throws Exception {
         logger.info("===========================执行处理完毕=============================");
-        long starttime = (long) request.getAttribute("starttime");
-        request.removeAttribute("starttime");
-        long endtime = System.currentTimeMillis();
-        logger.info("============请求地址：" + request.getRequestURI() + "：处理时间：{}", (endtime - starttime) + "ms");
+        logger.info("============请求地址：" + request.getRequestURI());
     }
 
     @Override
@@ -45,3 +33,5 @@ public class ChanelInterceptor implements HandlerInterceptor {
         logger.info("============================拦截器关闭==============================");
     }
 }
+
+

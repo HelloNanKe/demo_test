@@ -8,6 +8,7 @@ import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.NTCredentials;
 import org.apache.http.client.CookieStore;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.UserTokenHandler;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
@@ -127,8 +128,7 @@ public class TestController {
 
 
     @RequestMapping(value = "/crmAuth")
-    @ResponseBody
-    public Map<String, Object> crmAuth(HttpServletRequest request, HttpServletResponse response) {
+    public void crmAuth(HttpServletRequest request, HttpServletResponse response) {
         Map<String, Object> map = new HashMap<>();
         map.put("url", "http://wxtestbusiness.nabeluse.com:5555");
         DefaultHttpClient httpclient = new DefaultHttpClient();
@@ -142,12 +142,15 @@ public class TestController {
         HttpGet httpget = new HttpGet("/NobelDev/main.aspx");
         HttpResponse response1 = null;
         try {
+
             response1 = httpclient.execute(target, httpget, localContext);
+            UserTokenHandler userTokenHandler = httpclient.getUserTokenHandler();
+            Object o = userTokenHandler.getUserToken(localContext);
             System.err.println("response1---->:" + response1);
 //            httpclient.get
+
             HttpEntity entity1 = response1.getEntity();
             String res = entityToString(entity1);
-
 //            System.err.println("获取到的html页面:-------------->"+res);
             if (entity1 != null) {
                 entity1.consumeContent();
@@ -172,13 +175,18 @@ public class TestController {
             if (entity2 != null) {
                 entity2.consumeContent();
             }*/
-            httpclient.close();
+//                   System.err.println("请求到的html数据:"+res);
+            PrintWriter out=response.getWriter();
+            out.write(res);
+            out.flush();
 
+            httpclient.close();
         } catch (IOException e) {
             e.printStackTrace();
+
         }
 
-        return map;
+//        return map;
     }
 
 
