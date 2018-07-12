@@ -28,10 +28,7 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.io.*;
 import java.net.CookieHandler;
 import java.net.CookieManager;
 import java.net.HttpCookie;
@@ -135,7 +132,7 @@ public class TestController {
         HttpHost target = new HttpHost("wxtestbusiness.nabeluse.com", 5555, "http");
         HttpGet httpget = new HttpGet("/NobelDev/main.aspx");
         HttpResponse response1 = null;
-        PrintWriter out=null;
+        PrintWriter out = null;
         try {
             response1 = httpclient.execute(target, httpget);
             HttpEntity entity1 = response1.getEntity();
@@ -154,7 +151,7 @@ public class TestController {
             out.close();
         } catch (IOException e) {
             e.printStackTrace();
-        }finally {
+        } finally {
             httpclient.close();
             assert out != null;
             out.close();
@@ -170,7 +167,7 @@ public class TestController {
         HttpHost target = new HttpHost("wxtestbusiness.nabeluse.com", 5555, "http");
         HttpGet httpget = new HttpGet(request.getRequestURI());
         HttpResponse response1 = null;
-        PrintWriter out=null;
+        PrintWriter out = null;
         try {
             response1 = httpclient.execute(target, httpget);
             HttpEntity entity1 = response1.getEntity();
@@ -190,7 +187,7 @@ public class TestController {
             out.close();
         } catch (IOException e) {
             e.printStackTrace();
-        }finally {
+        } finally {
             httpclient.close();
             assert out != null;
             out.close();
@@ -198,22 +195,27 @@ public class TestController {
     }
 
 
-
     private String entityToString(HttpEntity entity) throws IOException {
         String result = null;
         if (entity != null) {
-            long lenth = entity.getContentLength();
-            if (lenth != -1 && lenth < 2048) {
-                result = EntityUtils.toString(entity, "gb2312");
-            } else {
-                InputStreamReader reader1 = new InputStreamReader(entity.getContent(), "gb2312");
-                CharArrayBuffer buffer = new CharArrayBuffer(2048);
-                char[] tmp = new char[1024];
-                int l;
-                while ((l = reader1.read(tmp)) != -1) {
-                    buffer.append(tmp, 0, l);
-                }
-                result = buffer.toString();
+//            long lenth = entity.getContentLength();
+//            if (lenth != -1 && lenth < 2048) {
+//                result = EntityUtils.toString(entity, "gb2312");
+//            } else {
+//                InputStreamReader reader1 = new InputStreamReader(entity.getContent(), "gb2312");
+//                CharArrayBuffer buffer = new CharArrayBuffer(2048);
+//                char[] tmp = new char[1024];
+//                int l;
+//                while ((l = reader1.read(tmp)) != -1) {
+//                    buffer.append(tmp, 0, l);
+//                }
+//                result = buffer.toString();
+//            }
+
+            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(entity.getContent(),"utf-8"));
+            String line = null;
+            while ((line = bufferedReader.readLine()) != null) {
+                result += line + "\n";
             }
         }
         return result;
