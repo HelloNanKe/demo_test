@@ -103,14 +103,14 @@ public class TestController {
             String res = entityToString(entity1);
             Header[] headers = response1.getAllHeaders();
             Header header = headers[5];
-            System.err.println("登录时的cookie:"+header.getValue());
+            System.err.println("登录时的cookie:" + header.getValue());
             response.addCookie(new Cookie("ReqClientId", header.getValue()));
             if (entity1 != null) {
                 entity1.consumeContent();
             }
-            out = response.getWriter();
             assert entity1 != null;
             response.setContentType(entity1.getContentType().getValue());
+            out = response.getWriter();
             out.write(res);
             out.flush();
         } catch (IOException e) {
@@ -124,9 +124,10 @@ public class TestController {
 
     @RequestMapping(value = "/NobelDev/**")
     public void nobeluse(HttpServletRequest request, HttpServletResponse response) {
-//        if(request.getRequestURI().endsWith(".asmx")){
-//            return;
-//        }
+        String s = null;
+        if (request.getRequestURI().endsWith(".asmx")) {
+            s = request.getRequestURI();
+        }
         String method = request.getMethod();
         if ("GET".equals(method)) {
             doGet(response, request);
@@ -149,6 +150,7 @@ public class TestController {
         NTCredentials creds = new NTCredentials("test123@ad:test123");
         httpclient.getCredentialsProvider().setCredentials(AuthScope.ANY, creds);
         HttpHost target = new HttpHost("wxtestbusiness.nabeluse.com", 5555, "http");
+        System.err.println("GET请求的参数:"+queryStr);
         HttpGet httpget = new HttpGet(request.getRequestURI() + "?" + queryStr);
 //        HttpGet httpget = new HttpGet(request.getRequestURI());
 
@@ -161,9 +163,9 @@ public class TestController {
             if (entity1 != null) {
                 entity1.consumeContent();
             }
-            out = response.getWriter();
             assert entity1 != null;
             response.setContentType(entity1.getContentType().getValue());
+            out = response.getWriter();
             out.write(res);
             out.flush();
         } catch (IOException e) {
@@ -198,10 +200,9 @@ public class TestController {
             if (entity1 != null) {
                 entity1.consumeContent();
             }
-            out = response.getWriter();
-            //response.setCharacterEncoding("gb2312");
             assert entity1 != null;
             response.setContentType(entity1.getContentType().getValue());
+            out = response.getWriter();
             out.write(res);
             out.flush();
         } catch (IOException e) {
