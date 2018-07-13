@@ -75,6 +75,7 @@ public class TestController {
             cookie.setDomain("wxtestbusiness.nabeluse.com");
             cookie.setPath("/");
             response.setHeader("ReqClientId", header.getValue());
+
             map.put("ReqClientId", header.getValue());
             response.addCookie(cookie);
             response.setContentType("application/x-www-form-urlencoded;charset=UTF-8");
@@ -100,16 +101,69 @@ public class TestController {
             response1 = httpclient.execute(target, httpget);
             HttpEntity entity1 = response1.getEntity();
             String res = entityToString(entity1);
-//            System.err.println("获取到的html页面:-------------->"+res);
+            Header[] headers = response1.getAllHeaders();
+            Header header = headers[5];
+            System.err.println("登录时的cookie:"+header.getValue());
+            response.addCookie(new Cookie("ReqClientId", header.getValue()));
             if (entity1 != null) {
                 entity1.consumeContent();
             }
             out = response.getWriter();
             assert entity1 != null;
             response.setContentType(entity1.getContentType().getValue());
-            response.setHeader("Pragma", "No-cache");
-            response.setHeader("Cache-Control", "no-cache");
-            response.setDateHeader("Expires", 0);
+            out.write(res);
+            out.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            httpclient.close();
+            assert out != null;
+            out.close();
+        }
+    }
+
+    @RequestMapping(value = "/NobelDev/**")
+    public void nobeluse(HttpServletRequest request, HttpServletResponse response) {
+//        if(request.getRequestURI().endsWith(".asmx")){
+//            return;
+//        }
+        String method = request.getMethod();
+        if ("GET".equals(method)) {
+            doGet(response, request);
+        } else {
+            doPost(request, response);
+        }
+    }
+
+
+    /**
+     * get请求
+     *
+     * @param response
+     * @param request
+     * @return
+     */
+    private void doGet(HttpServletResponse response, HttpServletRequest request) {
+        String queryStr = request.getQueryString();
+        DefaultHttpClient httpclient = new DefaultHttpClient();
+        NTCredentials creds = new NTCredentials("test123@ad:test123");
+        httpclient.getCredentialsProvider().setCredentials(AuthScope.ANY, creds);
+        HttpHost target = new HttpHost("wxtestbusiness.nabeluse.com", 5555, "http");
+        HttpGet httpget = new HttpGet(request.getRequestURI() + "?" + queryStr);
+//        HttpGet httpget = new HttpGet(request.getRequestURI());
+
+        HttpResponse response1 = null;
+        PrintWriter out = null;
+        try {
+            response1 = httpclient.execute(target, httpget);
+            HttpEntity entity1 = response1.getEntity();
+            String res = entityToString(entity1);
+            if (entity1 != null) {
+                entity1.consumeContent();
+            }
+            out = response.getWriter();
+            assert entity1 != null;
+            response.setContentType(entity1.getContentType().getValue());
             out.write(res);
             out.flush();
         } catch (IOException e) {
@@ -122,112 +176,42 @@ public class TestController {
     }
 
 
-    @RequestMapping(value = "/NobelDev/**")
-    public void nobeluse1(HttpServletRequest request, HttpServletResponse response) {
-        DefaultHttpClient httpclient = new DefaultHttpClient();
-        NTCredentials creds = new NTCredentials("test123@ad:test123");
-        httpclient.getCredentialsProvider().setCredentials(AuthScope.ANY, creds);
-        HttpHost target = new HttpHost("wxtestbusiness.nabeluse.com", 5555, "http");
-        HttpGet httpget = new HttpGet(request.getRequestURI());
-        HttpResponse response1 = null;
-
-        PrintWriter out = null;
-        try {
-            response1 = httpclient.execute(target, httpget);
-            HttpEntity entity1 = response1.getEntity();
-            String res = entityToString(entity1);
-//            System.err.println("获取到的html页面:-------------->"+res);
-            if (entity1 != null) {
-                entity1.consumeContent();
-            }
-            out = response.getWriter();
-            //response.setCharacterEncoding("gb2312");
-            assert entity1 != null;
-            response.setContentType(entity1.getContentType().getValue());
-            response.setHeader("Pragma", "No-cache");
-            response.setHeader("Cache-Control", "no-cache");
-            response.setDateHeader("Expires", 0);
-            out.write(res);
-            out.flush();
-            out.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            httpclient.close();
-        }
-    }
-
-
-
-
-    @RequestMapping(value = "/NobelDev1/_forms/**")
-    public void nobeluse(HttpServletRequest request, HttpServletResponse response) {
-        DefaultHttpClient httpclient = new DefaultHttpClient();
-        NTCredentials creds = new NTCredentials("test123@ad:test123");
-        httpclient.getCredentialsProvider().setCredentials(AuthScope.ANY, creds);
-        HttpHost target = new HttpHost("wxtestbusiness.nabeluse.com", 5555, "http");
-        HttpGet httpget = new HttpGet(request.getRequestURI());
-        HttpResponse response1 = null;
-
-        PrintWriter out = null;
-        try {
-            response1 = httpclient.execute(target, httpget);
-            HttpEntity entity1 = response1.getEntity();
-            int status = response1.getStatusLine().getStatusCode();
-            if (response1.getStatusLine().getStatusCode() != 200) {
-                return;
-            }
-            String res = entityToString(entity1);
-//            System.err.println("获取到的html页面:-------------->"+res);
-            if (entity1 != null) {
-                entity1.consumeContent();
-            }
-            out = response.getWriter();
-            //response.setCharacterEncoding("gb2312");
-            assert entity1 != null;
-            response.setContentType(entity1.getContentType().getValue());
-//            response.setCharacterEncoding(entity1.getContentType().getValue());
-            response.setHeader("Pragma", "No-cache");
-            response.setHeader("Cache-Control", "no-cache");
-            response.setDateHeader("Expires", 0);
-            out.write(res);
-            out.flush();
-            out.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            httpclient.close();
-        }
-    }
-
     /**
-     * crm json数据接口处理
+     * 处理post请求
+     *
      * @param request
      * @param response
-     * @return
      */
-    @RequestMapping(value = "/NobelDev1/api/**")
-    @ResponseBody
-    public String apiHandle(HttpServletRequest request, HttpServletResponse response) {
+    private void doPost(HttpServletRequest request, HttpServletResponse response) {
         DefaultHttpClient httpclient = new DefaultHttpClient();
         NTCredentials creds = new NTCredentials("test123@ad:test123");
         httpclient.getCredentialsProvider().setCredentials(AuthScope.ANY, creds);
         HttpHost target = new HttpHost("wxtestbusiness.nabeluse.com", 5555, "http");
-        HttpGet httpget = new HttpGet(request.getRequestURI());
+        HttpPost httpPost = new HttpPost(request.getRequestURI());
         HttpResponse response1 = null;
         PrintWriter out = null;
         try {
-            response1 = httpclient.execute(target, httpget);
+            response1 = httpclient.execute(target, httpPost);
             HttpEntity entity1 = response1.getEntity();
-            return entityToString(entity1);
+            String res = entityToString(entity1);
+//            System.err.println("获取到的html页面:-------------->"+res);
+            if (entity1 != null) {
+                entity1.consumeContent();
+            }
+            out = response.getWriter();
+            //response.setCharacterEncoding("gb2312");
+            assert entity1 != null;
+            response.setContentType(entity1.getContentType().getValue());
+            out.write(res);
+            out.flush();
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
             httpclient.close();
+            assert out != null;
+            out.close();
         }
-        return null;
     }
-
 
     private String entityToString(HttpEntity entity) throws IOException {
         String result = "";
@@ -245,8 +229,9 @@ public class TestController {
 //                }
 //                result = buffer.toString();
 //            }
-
-            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(entity.getContent(), "utf-8"));
+            InputStreamReader inputStreamReader = new InputStreamReader(entity.getContent());
+            String s = inputStreamReader.getEncoding();
+            BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
             String line = "";
             while ((line = bufferedReader.readLine()) != null) {
                 result += line + "\n";
