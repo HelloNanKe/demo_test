@@ -1,24 +1,26 @@
 package com.zt.demo_test.controller;
 
-import org.apache.http.Header;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpHost;
-import org.apache.http.HttpResponse;
+
+import org.apache.http.*;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.NTCredentials;
 import org.apache.http.client.CookieStore;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.UserTokenHandler;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.io.HttpResponseWriter;
+import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.message.BufferedHeader;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.CharArrayBuffer;
 import org.apache.http.util.EntityUtils;
+import org.springframework.http.RequestEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -28,6 +30,7 @@ import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
 
+import javax.servlet.ServletInputStream;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -36,10 +39,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.*;
 import java.net.*;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @Author: zt
@@ -49,8 +49,8 @@ import java.util.Map;
 public class TestController {
 
 
-    private static final String SERVICE_URL="http://wxtestbusiness.nabeluse.com";
-    private static  final String SERVER_HOST="wxtestbusiness.nabeluse.com";
+    private static final String SERVICE_URL = "http://wxtestbusiness.nabeluse.com";
+    private static final String SERVER_HOST = "wxtestbusiness.nabeluse.com";
 
     @RequestMapping(value = "/test2")
     public String test() {
@@ -132,11 +132,8 @@ public class TestController {
     @RequestMapping(value = "/NobelDev/**")
     public void nobeluse(HttpServletRequest request, HttpServletResponse response) {
         String s = request.getRequestURI();
-
         String method = request.getMethod();
-      /*  if(s.endsWith(".ashx")){
-            queryWebService(request,response);
-        } else*/ if ("GET".equals(method)) {
+        if ("GET".equals(method)) {
             doGet(response, request);
         } else {
             doPost(request, response);
@@ -192,12 +189,13 @@ public class TestController {
      * @param response
      */
     private void doPost(HttpServletRequest request, HttpServletResponse response) {
+
+        String payloadStr = getStringFromStream(request);
+
         DefaultHttpClient httpclient = new DefaultHttpClient();
         NTCredentials creds = new NTCredentials("test123@ad:test123");
         httpclient.getCredentialsProvider().setCredentials(AuthScope.ANY, creds);
         HttpHost target = new HttpHost("wxtestbusiness.nabeluse.com", 5555, "http");
-
-        Map<String,String[]> paramMap=new HashMap<>();
 
         String queryStr = "";
         queryStr = request.getQueryString();
@@ -206,6 +204,18 @@ public class TestController {
             httpPost = new HttpPost(request.getRequestURI());
         } else {
             httpPost = new HttpPost(request.getRequestURI() + "?" + queryStr);
+           /* List<BufferedHeader> paramList = new ArrayList<>();
+            CharArrayBuffer charArrayBuffer = new CharArrayBuffer(payloadStr.length() + 1);
+            charArrayBuffer.append(payloadStr);
+            paramList.add(new BufferedHeader(charArrayBuffer));
+            UrlEncodedFormEntity uefEntity = null;
+            try {
+                uefEntity = new UrlEncodedFormEntity(paramList, "UTF-8");
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            }*/
+            StringEntity stringEntity = new StringEntity(payloadStr, "utf-8");
+            httpPost.setEntity(stringEntity);
         }
         HttpResponse response1 = null;
         PrintWriter out = null;
@@ -231,138 +241,23 @@ public class TestController {
     }
 
 
-    /**
-     * 处理c#中webservice接口的调用
-     * @param request
-     * @param response
-     */
-    private void queryWebService(HttpServletRequest request,HttpServletResponse response){
-
-        String paramString=request.getQueryString();
-        InputStream inputStream = null;
-        Document document = null;
-        URL url = null;
-        HttpURLConnection urlConn = null;
-        DocumentBuilderFactory documentBuilderFactory = null;
-        DocumentBuilder documentBuilder = null;
-        String serverURL="";
-        String requestMethod=request.getMethod();
-
+    private String getStringFromStream(HttpServletRequest req) {
+        ServletInputStream is;
         try {
-            documentBuilderFactory = DocumentBuilderFactory.newInstance();
-            documentBuilderFactory.setNamespaceAware(true);
-            documentBuilder = documentBuilderFactory.newDocumentBuilder();
-
-            String userInfo="test123@ad:test123";
-
-            if ("GET".equalsIgnoreCase(request.getMethod())) {// GET方式
-                if(StringUtils.isEmpty(paramString)){
-                    serverURL = SERVICE_URL +request.getRequestURI();
-                }else {
-                    serverURL = SERVICE_URL +request.getRequestURI()+ "?" + paramString;
-                }
-                System.err.println("【请求WebService地址：" + serverURL + "，请求方式：" + requestMethod.toUpperCase() + "】");
-                url = new URL(serverURL);
-                urlConn = (HttpURLConnection) url.openConnection();
-                urlConn.setRequestProperty("Authorization",userInfo);
-                urlConn.setRequestMethod("GET");
-//                urlConn.setRequestProperty("Host", SERVICE_HOST);
-                urlConn.setRequestProperty("Host", SERVER_HOST);
-                urlConn.setConnectTimeout(10000);// （单位：毫秒）
-                urlConn.setReadTimeout(10000);// （单位：毫秒）
-                urlConn.connect();
-                inputStream = urlConn.getInputStream();
-                document = documentBuilder.parse(inputStream);
-                PrintWriter out=response.getWriter();
-                if (!StringUtils.isEmpty(document.toString())){
-                    out.write(document.toString());
-                    out.flush();
-                    out.close();
-                }
-                inputStream.close();
-                urlConn.disconnect();
-            } else if ("POST".equalsIgnoreCase(request.getMethod())) {// POST方式
-                if(StringUtils.isEmpty(paramString)){
-                    serverURL = SERVICE_URL +request.getRequestURI();
-                }else {
-                    serverURL = SERVICE_URL +request.getRequestURI()+ "?" + paramString;
-                }
-
-                System.err.println("【请求WebService地址：" + serverURL+request.getRequestURI() + "，请求方式：" + requestMethod.toUpperCase() + "】");
-                url = new URL(serverURL);
-                urlConn = (HttpURLConnection) url.openConnection();
-                urlConn.setRequestMethod("POST");
-                urlConn.setRequestProperty("Authorization",userInfo);
-                urlConn.setConnectTimeout(10000);// （单位：毫秒）
-                urlConn.setReadTimeout(10000);// （单位：毫秒）
-                urlConn.setDoOutput(true);
-                byte[] byteArray = paramString.getBytes();
-                urlConn.getOutputStream().write(byteArray, 0, byteArray.length);
-                urlConn.getOutputStream().flush();
-                urlConn.getOutputStream().close();
-                inputStream = urlConn.getInputStream();
-                document = documentBuilder.parse(inputStream);
-                PrintWriter out=response.getWriter();
-                if (!StringUtils.isEmpty(document.toString())){
-                    out.write(document.toString());
-                    out.flush();
-                    out.close();
-                }
-
-
-            } else {
-                System.err.println(">>>>WebService请求方式错误！");
+            is = req.getInputStream();
+            int nRead = 1;
+            int nTotalRead = 0;
+            byte[] bytes = new byte[10240];
+            while (nRead > 0) {
+                nRead = is.read(bytes, nTotalRead, bytes.length - nTotalRead);
+                if (nRead > 0)
+                    nTotalRead = nTotalRead + nRead;
             }
-        } catch (ParserConfigurationException e) {
-            System.err.println("请求Webservice异常：解析配置文件异常！" + e.getMessage());
-            e.printStackTrace();
-            document = null;
-        } catch (MalformedURLException e) {
-            System.err.println("请求Webservice异常：URL协议错误！" + e.getMessage());
-            e.printStackTrace();
-            document = null;
-        } catch (ConnectException e) {
-            System.err.println("请求WebService连接超时！" + e.getMessage());
-            e.printStackTrace();
-            document = null;
-        } catch (SocketTimeoutException e) {
-            System.err.println("请求WebService连接超时！" + e.getMessage());
-            e.printStackTrace();
-            document = null;
+            String str = new String(bytes, 0, nTotalRead, "utf-8");
+            return str;
         } catch (IOException e) {
-            if (urlConn != null) {
-                try {
-                    int errorCode = urlConn.getResponseCode();
-                    String errorMessage = "请求Webservice异常!服务器返回状态码:";
-                    switch (errorCode) {
-                        case 400:
-                            System.err.println(errorMessage + "400，错误的请求！");
-                            break;
-                        case 403:
-                            System.err.println(errorMessage + "403，服务器拒绝访问！");
-                            break;
-                        case 404:
-                            System.err.println(errorMessage + "404，请求地址不存在！");
-                            break;
-                        case 500:
-                            System.err.println(errorMessage + "500，WebService服务器内部错误！");
-                            break;
-                        case 503:
-                            System.err.println(errorMessage + "503，WebService服务不可用！");
-                            break;
-                        default:
-                            System.err.println(errorMessage + errorCode);
-                            break;
-                    }
-                } catch (IOException e1) {
-                    e1.printStackTrace();
-                }
-            }
-            document = null;
-        } catch (SAXException e) {
-            System.err.println("请求Webservice异常：SAXException！" + e.getMessage());
             e.printStackTrace();
-            document = null;
+            return "";
         }
     }
 
