@@ -22,6 +22,7 @@ import org.apache.http.util.CharArrayBuffer;
 import org.apache.http.util.EntityUtils;
 import org.springframework.http.RequestEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -124,8 +125,9 @@ public class TestController {
             e.printStackTrace();
         } finally {
             httpclient.close();
-            assert out != null;
-            out.close();
+            if (!ObjectUtils.isEmpty(out)) {
+                out.close();
+            }
         }
     }
 
@@ -133,7 +135,9 @@ public class TestController {
     public void nobeluse(HttpServletRequest request, HttpServletResponse response) {
         String s = request.getRequestURI();
         String method = request.getMethod();
-        if ("GET".equals(method)) {
+        if (request.getRequestURI().endsWith(".asmx")) {
+            doGet(response, request);
+        } else if ("GET".equals(method)) {
             doGet(response, request);
         } else {
             doPost(request, response);
@@ -154,14 +158,19 @@ public class TestController {
         NTCredentials creds = new NTCredentials("test123@ad:test123");
         httpclient.getCredentialsProvider().setCredentials(AuthScope.ANY, creds);
         HttpHost target = new HttpHost("wxtestbusiness.nabeluse.com", 5555, "http");
-        System.err.println("GET请求的参数:" + queryStr);
-        HttpGet httpget = new HttpGet(request.getRequestURI() + "?" + queryStr);
-//        HttpGet httpget = new HttpGet(request.getRequestURI());
+//        System.err.println("GET请求的参数:" + queryStr);
+        HttpGet httpget = null;
+        if (StringUtils.isEmpty(queryStr)) {
+            httpget = new HttpGet(request.getRequestURI());
+        } else {
+            httpget = new HttpGet(request.getRequestURI() + "?" + queryStr);
+        }
 
         HttpResponse response1 = null;
         PrintWriter out = null;
         try {
             response1 = httpclient.execute(target, httpget);
+            System.err.println("get请求：" + httpget.getURI() + "?" + queryStr + "  状态码:" + response1.getStatusLine().getStatusCode());
             HttpEntity entity1 = response1.getEntity();
             String res = entityToString(entity1);
             if (entity1 != null) {
@@ -176,8 +185,10 @@ public class TestController {
             e.printStackTrace();
         } finally {
             httpclient.close();
-            assert out != null;
-            out.close();
+            if (!ObjectUtils.isEmpty(out)) {
+                out.close();
+            }
+
         }
     }
 
@@ -199,21 +210,12 @@ public class TestController {
 
         String queryStr = "";
         queryStr = request.getQueryString();
+        System.err.println("post的请求参数:" + queryStr);
         HttpPost httpPost = null;
         if (StringUtils.isEmpty(queryStr)) {
             httpPost = new HttpPost(request.getRequestURI());
         } else {
             httpPost = new HttpPost(request.getRequestURI() + "?" + queryStr);
-           /* List<BufferedHeader> paramList = new ArrayList<>();
-            CharArrayBuffer charArrayBuffer = new CharArrayBuffer(payloadStr.length() + 1);
-            charArrayBuffer.append(payloadStr);
-            paramList.add(new BufferedHeader(charArrayBuffer));
-            UrlEncodedFormEntity uefEntity = null;
-            try {
-                uefEntity = new UrlEncodedFormEntity(paramList, "UTF-8");
-            } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
-            }*/
             StringEntity stringEntity = new StringEntity(payloadStr, "utf-8");
             httpPost.setEntity(stringEntity);
         }
@@ -221,6 +223,7 @@ public class TestController {
         PrintWriter out = null;
         try {
             response1 = httpclient.execute(target, httpPost);
+            System.err.println("post请求：" + httpPost.getURI() + "?" + queryStr + "状态码:  " + response1.getStatusLine().getStatusCode());
             HttpEntity entity1 = response1.getEntity();
             String res = entityToString(entity1);
             if (entity1 != null) {
@@ -235,8 +238,9 @@ public class TestController {
             e.printStackTrace();
         } finally {
             httpclient.close();
-            assert out != null;
-            out.close();
+            if (!ObjectUtils.isEmpty(out)) {
+                out.close();
+            }
         }
     }
 
