@@ -4,42 +4,26 @@ package com.zt.demo_test.controller;
 import org.apache.http.*;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.NTCredentials;
-import org.apache.http.client.CookieStore;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.UserTokenHandler;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.impl.io.HttpResponseWriter;
-import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.message.BufferedHeader;
-import org.apache.http.protocol.BasicHttpContext;
-import org.apache.http.protocol.HttpContext;
-import org.apache.http.util.CharArrayBuffer;
 import org.apache.http.util.EntityUtils;
-import org.springframework.http.RequestEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.servlet.ModelAndView;
-import org.w3c.dom.Document;
-import org.xml.sax.SAXException;
 
 
 import javax.servlet.ServletInputStream;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 import java.io.*;
-import java.net.*;
 import java.util.*;
 
 /**
@@ -52,12 +36,6 @@ public class TestController {
 
     private static final String SERVICE_URL = "http://wxtestbusiness.nabeluse.com";
     private static final String SERVER_HOST = "wxtestbusiness.nabeluse.com";
-
-    @RequestMapping(value = "/test2")
-    public String test() {
-        System.err.println("进入页面请求---->");
-        return "login.html";
-    }
 
 
     @RequestMapping(value = "/test1")
@@ -135,8 +113,8 @@ public class TestController {
     public void nobeluse(HttpServletRequest request, HttpServletResponse response) {
         String s = request.getRequestURI();
         String method = request.getMethod();
-        if (request.getRequestURI().endsWith(".asmx")) {
-            doGet(response, request);
+        if (request.getRequestURI().endsWith(".asmx") || request.getRequestURI().endsWith(".ashx")) {
+            doWebService(request, response);
         } else if ("GET".equals(method)) {
             doGet(response, request);
         } else {
@@ -170,6 +148,7 @@ public class TestController {
         PrintWriter out = null;
         try {
             response1 = httpclient.execute(target, httpget);
+            response.setStatus(response1.getStatusLine().getStatusCode());
             System.err.println("get请求：" + httpget.getURI() + "?" + queryStr + "  状态码:" + response1.getStatusLine().getStatusCode());
             HttpEntity entity1 = response1.getEntity();
             String res = entityToString(entity1);
@@ -188,7 +167,12 @@ public class TestController {
             if (!ObjectUtils.isEmpty(out)) {
                 out.close();
             }
-
+            if (!ObjectUtils.isEmpty(httpget)) {
+                httpget.releaseConnection();
+            }
+            if (!ObjectUtils.isEmpty(httpclient)) {
+                httpclient.close();
+            }
         }
     }
 
@@ -201,7 +185,7 @@ public class TestController {
      */
     private void doPost(HttpServletRequest request, HttpServletResponse response) {
 
-        String payloadStr = getStringFromStream(request);
+        String payloadStr = getPayloadStr(request);
 
         DefaultHttpClient httpclient = new DefaultHttpClient();
         NTCredentials creds = new NTCredentials("test123@ad:test123");
@@ -223,6 +207,7 @@ public class TestController {
         PrintWriter out = null;
         try {
             response1 = httpclient.execute(target, httpPost);
+            response.setStatus(response1.getStatusLine().getStatusCode());
             System.err.println("post请求：" + httpPost.getURI() + "?" + queryStr + "状态码:  " + response1.getStatusLine().getStatusCode());
             HttpEntity entity1 = response1.getEntity();
             String res = entityToString(entity1);
@@ -231,38 +216,111 @@ public class TestController {
             }
             assert entity1 != null;
             response.setContentType(entity1.getContentType().getValue());
+
             out = response.getWriter();
             out.write(res);
             out.flush();
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
-            httpclient.close();
             if (!ObjectUtils.isEmpty(out)) {
                 out.close();
+            }
+            if (!ObjectUtils.isEmpty(httpPost)) {
+                httpPost.releaseConnection();
+            }
+            if (ObjectUtils.isEmpty(httpclient)) {
+                httpclient.close();
             }
         }
     }
 
 
-    private String getStringFromStream(HttpServletRequest req) {
-        ServletInputStream is;
+    /**
+     * 处理webService请求
+     *
+     * @param request
+     */
+    private void doWebService(HttpServletRequest request, HttpServletResponse servletResponse) {
+
+        String payloadStr = getPayloadStr(request);
+
+        DefaultHttpClient httpclient = new DefaultHttpClient();
+        NTCredentials creds = new NTCredentials("test123@ad:test123");
+        httpclient.getCredentialsProvider().setCredentials(AuthScope.ANY, creds);
+        HttpHost target = new HttpHost("wxtestbusiness.nabeluse.com", 5555, "http");
+
+        String queryStr = request.getQueryString();
+        HttpPost httpPost = null;
+        if (StringUtils.isEmpty(queryStr)) {
+            httpPost = new HttpPost(request.getRequestURI());
+        } else {
+            httpPost = new HttpPost(request.getRequestURI() + "?" + queryStr);
+        }
+        httpPost.setHeader("Content-Type", "text/xml");
+
+        StringEntity stringEntity = new StringEntity(payloadStr, ContentType.create("text/xml", "UTF-8"));
+        httpPost.setEntity(stringEntity);
+        PrintWriter out = null;
         try {
-            is = req.getInputStream();
-            int nRead = 1;
-            int nTotalRead = 0;
-            byte[] bytes = new byte[10240];
-            while (nRead > 0) {
-                nRead = is.read(bytes, nTotalRead, bytes.length - nTotalRead);
-                if (nRead > 0)
-                    nTotalRead = nTotalRead + nRead;
-            }
-            String str = new String(bytes, 0, nTotalRead, "utf-8");
-            return str;
+
+            ResponseHandler<String> responseHandler = new ResponseHandler<String>() {
+                public String handleResponse(final HttpResponse response) throws ClientProtocolException, IOException {
+                    servletResponse.setStatus(response.getStatusLine().getStatusCode());
+                    System.err.println("webService请求：" + request.getRequestURI() + "?" + "状态码:  " + response.getStatusLine().getStatusCode());
+                    HttpEntity entity = response.getEntity();
+                    servletResponse.setContentType(entity.getContentType().getValue());
+                    return entityToString(entity);
+                }
+            };
+
+            String res = httpclient.execute(target, httpPost, responseHandler);
+//            System.err.println(request.getRequestURI()+"：webService请求的返回值:"+res);
+            out = servletResponse.getWriter();
+            out.write(res);
+            out.flush();
+
         } catch (IOException e) {
             e.printStackTrace();
-            return "";
+        } finally {
+
+            if (!ObjectUtils.isEmpty(out)) {
+                out.close();
+            }
+            if (!ObjectUtils.isEmpty(httpPost)) {
+                httpPost.releaseConnection();
+            }
+            if (!ObjectUtils.isEmpty(httpclient)) {
+                httpclient.close();
+            }
         }
+    }
+
+
+    /**
+     * 获取XMLHttpRequest携带的请求参数
+     *
+     * @param req
+     * @return
+     */
+    private String getPayloadStr(HttpServletRequest req) {
+
+        String params = "";
+        BufferedReader br = null;
+        try {
+            br = new BufferedReader(new InputStreamReader((ServletInputStream) req.getInputStream(), "utf-8"));
+            StringBuffer sb = new StringBuffer("");
+            String temp;
+            while ((temp = br.readLine()) != null) {
+                sb.append(temp + "\n");
+            }
+            br.close();
+            params = sb.toString();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return params;
+
     }
 
     private String entityToString(HttpEntity entity) throws IOException {
@@ -278,6 +336,29 @@ public class TestController {
             }
         }
         return result;
+    }
+
+    /**
+     * payload串包装
+     *
+     * @param rquestXML
+     * @return
+     */
+    private static String wrapSoapTag(String rquestXML) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\">");
+        sb.append("<soapenv:Header/>");
+        sb.append("<soapenv:Body>");
+        sb.append("<ns2:sayByeBye xmlns:ns2=\"http://server.cxf.zgf.org/\">");
+        sb.append("<arg0>");
+        sb.append("<![CDATA[");
+        sb.append(rquestXML.trim());
+        sb.append("]]>");
+        sb.append("</arg0>");
+        sb.append("</ns2:sayByeBye>");
+        sb.append("</soapenv:Body>");
+        sb.append("</soapenv:Envelope>");
+        return sb.toString();
     }
 
 }
