@@ -111,7 +111,6 @@ public class TestController {
 
     @RequestMapping(value = "/NobelDev/**")
     public void nobeluse(HttpServletRequest request, HttpServletResponse response) {
-        String s = request.getRequestURI();
         String method = request.getMethod();
         if (request.getRequestURI().endsWith(".asmx") || request.getRequestURI().endsWith(".ashx")) {
             doWebService(request, response);
@@ -242,14 +241,11 @@ public class TestController {
      * @param request
      */
     private void doWebService(HttpServletRequest request, HttpServletResponse servletResponse) {
-
         String payloadStr = getPayloadStr(request);
-
         DefaultHttpClient httpclient = new DefaultHttpClient();
         NTCredentials creds = new NTCredentials("test123@ad:test123");
         httpclient.getCredentialsProvider().setCredentials(AuthScope.ANY, creds);
         HttpHost target = new HttpHost("wxtestbusiness.nabeluse.com", 5555, "http");
-
         String queryStr = request.getQueryString();
         HttpPost httpPost = null;
         if (StringUtils.isEmpty(queryStr)) {
@@ -258,12 +254,10 @@ public class TestController {
             httpPost = new HttpPost(request.getRequestURI() + "?" + queryStr);
         }
         httpPost.setHeader("Content-Type", "text/xml");
-
         StringEntity stringEntity = new StringEntity(payloadStr, ContentType.create("text/xml", "UTF-8"));
         httpPost.setEntity(stringEntity);
         PrintWriter out = null;
         try {
-
             ResponseHandler<String> responseHandler = new ResponseHandler<String>() {
                 public String handleResponse(final HttpResponse response) throws ClientProtocolException, IOException {
                     servletResponse.setStatus(response.getStatusLine().getStatusCode());
@@ -273,7 +267,6 @@ public class TestController {
                     return entityToString(entity);
                 }
             };
-
             String res = httpclient.execute(target, httpPost, responseHandler);
 //            System.err.println(request.getRequestURI()+"：webService请求的返回值:"+res);
             out = servletResponse.getWriter();
@@ -309,10 +302,10 @@ public class TestController {
         BufferedReader br = null;
         try {
             br = new BufferedReader(new InputStreamReader((ServletInputStream) req.getInputStream(), "utf-8"));
-            StringBuffer sb = new StringBuffer("");
+            StringBuilder sb = new StringBuilder("");
             String temp;
             while ((temp = br.readLine()) != null) {
-                sb.append(temp + "\n");
+                sb.append(temp).append("\n");
             }
             br.close();
             params = sb.toString();
