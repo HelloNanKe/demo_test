@@ -1,18 +1,24 @@
 package com.zt.demo_test.controller;
 
 
+import org.apache.commons.httpclient.methods.InputStreamRequestEntity;
 import org.apache.http.*;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.NTCredentials;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.ResponseHandler;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ContentType;
+import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.RequestEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,6 +30,7 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
+import java.net.URI;
 import java.util.*;
 
 /**
@@ -32,47 +39,8 @@ import java.util.*;
  */
 @Controller
 public class TestController {
-
-
     private static final String SERVICE_URL = "http://wxtestbusiness.nabeluse.com";
     private static final String SERVER_HOST = "wxtestbusiness.nabeluse.com";
-
-
-    @RequestMapping(value = "/test1")
-    @ResponseBody
-    public Map<String, String> httpQuery(HttpServletResponse response, HttpServletRequest request) {
-        Map<String, String> map = new HashMap<>();
-        DefaultHttpClient httpclient = new DefaultHttpClient();
-        NTCredentials creds = new NTCredentials("test123@ad:test123");
-        httpclient.getCredentialsProvider().setCredentials(AuthScope.ANY, creds);
-        HttpHost target = new HttpHost("wxtestbusiness.nabeluse.com", 5555, "http");
-        // 首先执行简便的方法。这会触发NTLM认证
-        HttpGet httpget = new HttpGet("/NobelDev/main.aspx");
-        HttpResponse response1 = null;
-        try {
-            response1 = httpclient.execute(target, httpget);
-            System.err.println(response1);
-
-            Header[] headers = response1.getAllHeaders();
-            Header header = headers[5];
-            Cookie cookie = new Cookie("ReqClientId", header.getValue());
-            cookie.setMaxAge(-1);
-            cookie.setHttpOnly(true);
-            cookie.setDomain("wxtestbusiness.nabeluse.com");
-            cookie.setPath("/");
-            response.setHeader("ReqClientId", header.getValue());
-
-            map.put("ReqClientId", header.getValue());
-            response.addCookie(cookie);
-            response.setContentType("application/x-www-form-urlencoded;charset=UTF-8");
-            httpclient.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        map.put("url", "http://wxtestbusiness.nabeluse.com:5555/NobelDev/main.aspx#1611548464");
-        return map;
-    }
-
 
     @RequestMapping(value = "/crmAuth")
     public void crmAuth(HttpServletRequest request, HttpServletResponse response) {
@@ -112,7 +80,9 @@ public class TestController {
     @RequestMapping(value = "/NobelDev/**")
     public void nobeluse(HttpServletRequest request, HttpServletResponse response) {
         String method = request.getMethod();
-        if (request.getRequestURI().endsWith(".asmx") || request.getRequestURI().endsWith(".ashx")) {
+        if (request.getRequestURI().endsWith(".asmx")) {
+            doWebService(request, response);
+        } else if (request.getRequestURI().endsWith(".ashx")) {
             doWebService(request, response);
         } else if ("GET".equals(method)) {
             doGet(response, request);
@@ -247,15 +217,17 @@ public class TestController {
         httpclient.getCredentialsProvider().setCredentials(AuthScope.ANY, creds);
         HttpHost target = new HttpHost("wxtestbusiness.nabeluse.com", 5555, "http");
         String queryStr = request.getQueryString();
+
         HttpPost httpPost = null;
         if (StringUtils.isEmpty(queryStr)) {
             httpPost = new HttpPost(request.getRequestURI());
         } else {
             httpPost = new HttpPost(request.getRequestURI() + "?" + queryStr);
         }
-        httpPost.setHeader("Content-Type", "text/xml");
-        StringEntity stringEntity = new StringEntity(payloadStr, ContentType.create("text/xml", "UTF-8"));
+        StringEntity stringEntity = new StringEntity(payloadStr, ContentType.create("text/plain", "UTF-8"));
         httpPost.setEntity(stringEntity);
+
+        httpPost.setHeader("Content-Type", "text/plain");
         PrintWriter out = null;
         try {
             ResponseHandler<String> responseHandler = new ResponseHandler<String>() {
@@ -268,15 +240,12 @@ public class TestController {
                 }
             };
             String res = httpclient.execute(target, httpPost, responseHandler);
-//            System.err.println(request.getRequestURI()+"：webService请求的返回值:"+res);
             out = servletResponse.getWriter();
             out.write(res);
             out.flush();
-
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
-
             if (!ObjectUtils.isEmpty(out)) {
                 out.close();
             }
