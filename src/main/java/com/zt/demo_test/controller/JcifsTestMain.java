@@ -1,10 +1,5 @@
 package com.zt.demo_test.controller;
 
-import jcifs.Config;
-import jcifs.http.NtlmHttpURLConnection;
-import jcifs.smb.NtlmAuthenticator;
-import jcifs.smb.NtlmPasswordAuthentication;
-
 import java.io.IOException;
 import java.net.HttpURLConnection;
 
