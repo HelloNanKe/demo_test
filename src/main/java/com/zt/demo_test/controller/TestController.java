@@ -1,28 +1,23 @@
 package com.zt.demo_test.controller;
 
-
-import org.apache.commons.httpclient.methods.InputStreamRequestEntity;
 import org.apache.http.*;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.NTCredentials;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.ResponseHandler;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ContentType;
-import org.apache.http.entity.InputStreamEntity;
+
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.util.EntityUtils;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.RequestEntity;
+
 import org.springframework.stereotype.Controller;
-import org.springframework.util.CollectionUtils;
+
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
+
 
 
 import javax.servlet.ServletInputStream;
@@ -30,8 +25,6 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
-import java.net.URI;
-import java.util.*;
 
 /**
  * @Author: zt
@@ -39,15 +32,22 @@ import java.util.*;
  */
 @Controller
 public class TestController {
-    private static final String SERVICE_URL = "http://wxtestbusiness.nabeluse.com";
+
+    //目标应用的域名或ip
     private static final String SERVER_HOST = "wxtestbusiness.nabeluse.com";
+    //    目标应用的端口
+    private static final int SERVER_PORT = 5555;
+    //    目标应用的协议
+    private static final String SERVER_PROTOCO = "http";
+    //    用户名密码的组装
+    private static final String USERPWD = "test123@ad:test123";
 
     @RequestMapping(value = "/crmAuth")
     public void crmAuth(HttpServletRequest request, HttpServletResponse response) {
         DefaultHttpClient httpclient = new DefaultHttpClient();
-        NTCredentials creds = new NTCredentials("test123@ad:test123");
+        NTCredentials creds = new NTCredentials(USERPWD);
         httpclient.getCredentialsProvider().setCredentials(AuthScope.ANY, creds);
-        HttpHost target = new HttpHost("wxtestbusiness.nabeluse.com", 5555, "http");
+        HttpHost target = new HttpHost(SERVER_HOST, SERVER_PORT, SERVER_PROTOCO);
         HttpGet httpget = new HttpGet("/NobelDev/main.aspx");
         HttpResponse response1 = null;
         PrintWriter out = null;
@@ -81,7 +81,7 @@ public class TestController {
     public void nobeluse(HttpServletRequest request, HttpServletResponse response) {
         String method = request.getMethod();
         if (request.getRequestURI().endsWith(".asmx")) {
-            doWebService(request, response);
+            doAsmxWebService(request, response);
         } else if (request.getRequestURI().endsWith(".ashx")) {
             doWebService(request, response);
         } else if ("GET".equals(method)) {
@@ -90,7 +90,6 @@ public class TestController {
             doPost(request, response);
         }
     }
-
 
     /**
      * get请求
@@ -102,9 +101,10 @@ public class TestController {
     private void doGet(HttpServletResponse response, HttpServletRequest request) {
         String queryStr = request.getQueryString();
         DefaultHttpClient httpclient = new DefaultHttpClient();
-        NTCredentials creds = new NTCredentials("test123@ad:test123");
+        NTCredentials creds = new NTCredentials(USERPWD);
         httpclient.getCredentialsProvider().setCredentials(AuthScope.ANY, creds);
-        HttpHost target = new HttpHost("wxtestbusiness.nabeluse.com", 5555, "http");
+        HttpHost target = new HttpHost(SERVER_HOST, SERVER_PORT, SERVER_PROTOCO);
+//        HttpHost target = new HttpHost("192.168.1.190", 5555, "http");
 //        System.err.println("GET请求的参数:" + queryStr);
         HttpGet httpget = null;
         if (StringUtils.isEmpty(queryStr)) {
@@ -157,10 +157,11 @@ public class TestController {
         String payloadStr = getPayloadStr(request);
 
         DefaultHttpClient httpclient = new DefaultHttpClient();
-        NTCredentials creds = new NTCredentials("test123@ad:test123");
+        NTCredentials creds = new NTCredentials(USERPWD);
         httpclient.getCredentialsProvider().setCredentials(AuthScope.ANY, creds);
-        HttpHost target = new HttpHost("wxtestbusiness.nabeluse.com", 5555, "http");
+        HttpHost target = new HttpHost(SERVER_HOST, SERVER_PORT, SERVER_PROTOCO);
 
+//        HttpHost target = new HttpHost("192.168.1.190", 5555, "http");
         String queryStr = "";
         queryStr = request.getQueryString();
         System.err.println("post的请求参数:" + queryStr);
@@ -204,7 +205,6 @@ public class TestController {
         }
     }
 
-
     /**
      * 处理webService请求
      *
@@ -213,9 +213,10 @@ public class TestController {
     private void doWebService(HttpServletRequest request, HttpServletResponse servletResponse) {
         String payloadStr = getPayloadStr(request);
         DefaultHttpClient httpclient = new DefaultHttpClient();
-        NTCredentials creds = new NTCredentials("test123@ad:test123");
+        NTCredentials creds = new NTCredentials(USERPWD);
         httpclient.getCredentialsProvider().setCredentials(AuthScope.ANY, creds);
-        HttpHost target = new HttpHost("wxtestbusiness.nabeluse.com", 5555, "http");
+        HttpHost target = new HttpHost(SERVER_HOST, SERVER_PORT, SERVER_PROTOCO);
+//        HttpHost target = new HttpHost("192.168.1.190", 5555, "http");
         String queryStr = request.getQueryString();
 
         HttpPost httpPost = null;
@@ -228,6 +229,7 @@ public class TestController {
         httpPost.setEntity(stringEntity);
 
         httpPost.setHeader("Content-Type", "text/plain");
+        httpPost.setHeader("Referer", "http://wxtestbusiness.nabeluse.com:5555/NobelDev/_root/homepage.aspx?etc=9100&pagemode=iframe&sitemappath=WorkPlace%7cMyWork%7cnav_reports");
         PrintWriter out = null;
         try {
             ResponseHandler<String> responseHandler = new ResponseHandler<String>() {
@@ -258,6 +260,59 @@ public class TestController {
         }
     }
 
+    /**
+     * 处理webService请求
+     *
+     * @param request
+     */
+    private void doAsmxWebService(HttpServletRequest request, HttpServletResponse servletResponse) {
+        String payloadStr = getPayloadStr(request);
+        DefaultHttpClient httpclient = new DefaultHttpClient();
+        NTCredentials creds = new NTCredentials(USERPWD);
+        httpclient.getCredentialsProvider().setCredentials(AuthScope.ANY, creds);
+        HttpHost target = new HttpHost(SERVER_HOST, SERVER_PORT, SERVER_PROTOCO);
+        String queryStr = request.getQueryString();
+
+        HttpPost httpPost = null;
+        if (StringUtils.isEmpty(queryStr)) {
+            httpPost = new HttpPost(request.getRequestURI());
+        } else {
+            httpPost = new HttpPost(request.getRequestURI() + "?" + queryStr);
+        }
+        StringEntity stringEntity = new StringEntity(payloadStr, ContentType.create("text/xml", "UTF-8"));
+        httpPost.setEntity(stringEntity);
+
+        httpPost.setHeader("Content-Type", "text/xml");
+        httpPost.setHeader("Referer", " http://wxtestbusiness.nabeluse.com:5555/NobelDev/main.aspx");
+        PrintWriter out = null;
+        try {
+            ResponseHandler<String> responseHandler = new ResponseHandler<String>() {
+                public String handleResponse(final HttpResponse response) throws ClientProtocolException, IOException {
+                    servletResponse.setStatus(response.getStatusLine().getStatusCode());
+                    System.err.println("webService请求：" + request.getRequestURI() + "?" + "状态码:  " + response.getStatusLine().getStatusCode());
+                    HttpEntity entity = response.getEntity();
+                    servletResponse.setContentType(entity.getContentType().getValue());
+                    return entityToString(entity);
+                }
+            };
+            String res = httpclient.execute(target, httpPost, responseHandler);
+            out = servletResponse.getWriter();
+            out.write(res);
+            out.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (!ObjectUtils.isEmpty(out)) {
+                out.close();
+            }
+            if (!ObjectUtils.isEmpty(httpPost)) {
+                httpPost.releaseConnection();
+            }
+            if (!ObjectUtils.isEmpty(httpclient)) {
+                httpclient.close();
+            }
+        }
+    }
 
     /**
      * 获取XMLHttpRequest携带的请求参数
