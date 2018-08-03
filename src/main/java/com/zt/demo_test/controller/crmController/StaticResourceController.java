@@ -1,3 +1,4 @@
+/*
 package com.zt.demo_test.controller;
 
 import org.apache.http.HttpResponse;
@@ -7,6 +8,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
@@ -19,16 +21,18 @@ import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+*/
 /**
  * @Author: zt
  * @Date: 2018/7/12 10:28
- */
+ *//*
+
 
 @Controller
 @RequestMapping(value = "")
 public class StaticResourceController {
 
-    private static final String STATIC_RESOURCE="http://wxtestbusiness.nabeluse.com:5555";
+    private static final String STATIC_RESOURCE = "http://wxtestbusiness.nabeluse.com:5555";
 
 //    @RequestMapping(value = "/NobelDev/**")
 //    @ResponseBody
@@ -38,24 +42,29 @@ public class StaticResourceController {
 //    }
 
 
-//    @RequestMapping(value = "/_static/**")
-//    @ResponseBody
-//    public String formGet(HttpServletRequest request,HttpServletResponse response){
-//        System.err.println("进入静态资源请求:_static:"+request.getRequestURI());
-//       return getJsonFromServer(STATIC_RESOURCE+request.getRequestURI());
-//    }
-//
-//    @RequestMapping(value = "/_imgs/**")
-//    @ResponseBody
-//    public byte[] imgsGet(HttpServletRequest request,HttpServletResponse response){
-//        System.err.println("进入静态资源请求:_static:"+request.getRequestURI());
-//      return   getImageFromNetByUrl(STATIC_RESOURCE+request.getRequestURI());
-//    }
+    @RequestMapping(value = "/_static/**")
+    @ResponseBody
+    public String formGet(HttpServletRequest request, HttpServletResponse response) {
+        System.err.println("进入静态资源请求:_static:" + request.getRequestURI());
+        String querStr = request.getQueryString();
+        String url=request.getRequestURI();
+        if(!StringUtils.isEmpty(querStr)){
+            url+="?"+querStr;
+        }
+        return getJsonFromServer(STATIC_RESOURCE + url);
+    }
 
-    public static byte[] getImageFromNetByUrl(String strUrl){
+    @RequestMapping(value = "/_imgs/**")
+    @ResponseBody
+    public byte[] imgsGet(HttpServletRequest request, HttpServletResponse response) {
+        System.err.println("进入静态资源请求:_static:" + request.getRequestURI());
+        return getImageFromNetByUrl(STATIC_RESOURCE + request.getRequestURI());
+    }
+
+    public static byte[] getImageFromNetByUrl(String strUrl) {
         try {
             URL url = new URL(strUrl);
-            HttpURLConnection conn = (HttpURLConnection)url.openConnection();
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("GET");
             conn.setConnectTimeout(5 * 1000);
             InputStream inStream = conn.getInputStream();//通过输入流获取图片数据
@@ -68,17 +77,20 @@ public class StaticResourceController {
     }
 
 
-    /**
+    */
+/**
      * 从输入流中获取数据
+     *
      * @param inStream 输入流
      * @return
      * @throws Exception
-     */
-    public static byte[] readInputStream(InputStream inStream) throws Exception{
+     *//*
+
+    public static byte[] readInputStream(InputStream inStream) throws Exception {
         ByteArrayOutputStream outStream = new ByteArrayOutputStream();
         byte[] buffer = new byte[1024];
         int len = 0;
-        while( (len=inStream.read(buffer)) != -1 ){
+        while ((len = inStream.read(buffer)) != -1) {
             outStream.write(buffer, 0, len);
         }
         inStream.close();
@@ -86,9 +98,9 @@ public class StaticResourceController {
     }
 
     private static String getJsonFromServer(String url) {
-        HttpClientBuilder httpClientBuilder=HttpClientBuilder.create();
-        CloseableHttpClient closeableHttpClient=httpClientBuilder.build();
-        HttpGet httpGet=new HttpGet(url);
+        HttpClientBuilder httpClientBuilder = HttpClientBuilder.create();
+        CloseableHttpClient closeableHttpClient = httpClientBuilder.build();
+        HttpGet httpGet = new HttpGet(url);
 //        httpGet.addHeader("Cookie",cookie);
         httpGet.addHeader("Content-type", "application/x-www-form-urlencoded");
         try {
@@ -96,11 +108,13 @@ public class StaticResourceController {
             HttpResponse response = closeableHttpClient.execute(httpGet);
             if (response.getStatusLine().getStatusCode() == 200) {
 //                System.err.println("返回数据:------------------------>"+ EntityUtils.toString(response.getEntity()));
-                /*读返回数据*/
-            return  EntityUtils.toString(response.getEntity());
+                */
+/*读返回数据*//*
+
+                return EntityUtils.toString(response.getEntity());
             } else {
-                String err = response.getStatusLine().getStatusCode()+"";
-                System.err.println("发送HTTP请求失败:"+err);
+                String err = response.getStatusLine().getStatusCode() + "";
+                System.err.println("发送HTTP请求失败:" + err);
             }
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
@@ -115,3 +129,4 @@ public class StaticResourceController {
 
 
 }
+*/

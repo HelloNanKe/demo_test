@@ -1,0 +1,105 @@
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Post Form</title></head>
+<body>&nbsp;&nbsp;<form id="commonGet2PostForm"></form>
+<script language='javascript'>/** *generate and submit post form *@param url - the request url which need change to post *@param formID - the id of the form which is used to post data */function generateAndSubmitForm(url, formID) {
+    generatePostForm(url, formID);
+    document.getElementById(formID).submit();
+}
+
+/** *generate and submit post form *@param url - the request url which need change to post *@param postForm - the form object which is used to post data */function generateAndSubmitFormObj(url, postForm) {
+    var paramsMap = {};
+    var actionStr = getActionFromUrl(url);
+    getParametersFromUrl(url, paramsMap);
+    addFormObjAttributes(postForm, actionStr, paramsMap);
+    postForm.submit();
+}
+
+/** *generate post form *@param url - the request url which need change to post *@param formID - the id of the form which is used to post data */function generatePostForm(url, formID) {
+    var paramsMap = {};
+    var actionStr = getActionFromUrl(url);
+    getParametersFromUrl(url, paramsMap);
+    setFormAttributes(formID, actionStr, paramsMap);
+}
+
+/** *get Action From Url *@param  url - the full request url *@return request action */function getActionFromUrl(url) {
+    if (isNoParametersInUrl(url)) {
+        return url;
+    }
+    return url.substring(0, url.indexOf("?"));
+}
+
+/** *get Action From Url *@param url - the full request url *@return request parameters arrange */function getParametersFromUrl(url, paramsMap) {
+    if (isNoParametersInUrl(url)) {
+        return paramsMap;
+    }
+    var markIndex = url.indexOf("?");
+    var paramsStr = url.substring(markIndex + 1, url.length);
+    return getParametersMap(paramsStr, paramsMap);
+}
+
+/**set form attributes * @param formID * @param action * @param paramsMap */function setFormAttributes(formID, action, paramsMap) {
+    var postForm = document.getElementById(formID);
+    addFormObjAttributes(postForm, action, paramsMap);
+}
+
+function addFormObjAttributes(postForm, action, paramsMap) {
+    postForm.action = action;
+    postForm.method = "post";
+    for (var key in paramsMap) {
+        var newInput = document.createElement("input");
+        newInput.type = "hidden";
+        newInput.name = key;
+        newInput.value = paramsMap[key];
+        postForm.appendChild(newInput);
+    }
+}
+
+function getParametersMap(paramsStr, paramsMap) {
+    if (paramsStr === null || typeof paramsStr == 'undefined') return paramsMap;
+    var paramsArray = paramsStr.split("&");
+    for (var i in paramsArray) {
+        getParamKeyValue(paramsArray[i], paramsMap);
+    }
+}
+
+function getParamKeyValue(param, paramsMap) {
+    if (param === null || typeof param == 'undefined' || param.indexOf("=") <= 0) return;
+    var markIndex = param.indexOf("=");
+    var key = param.substring(0, markIndex);
+    var value = "";
+    if (markIndex + 1 <= param.length) {
+        var encodeValue = param.substring(markIndex + 1, param.length);
+        var replacedEncodeValue = encodeValue.replace(/\+/g, " ");
+        try {
+            value = decodeURIComponent(replacedEncodeValue);
+        } catch (err) {
+            value = encodeValue;
+        }
+    }
+    paramsMap[key] = value;
+}
+
+function isNoParametersInUrl(url) {
+    if (url === null || typeof url == 'undefined') return true;
+    var markIndex = url.indexOf("?");
+    if (markIndex <= 0) return true;
+    return false;
+}
+
+var url = "/collabs/auth/loginerror?action=normalsso&code=1";
+generateAndSubmitForm(url, "commonGet2PostForm");</script>
+</body>
+</html>
+<script type="text/javascript">        var dateTemp_1946268223 = new Date();
+dateTemp_1946268223.setTime(dateTemp_1946268223.getTime() + (-1 * 1000));
+$.cookie('wbxSessionID', '8E6C4EA1126F6E775E1EA8EA1F360C41', {path: '/', secure: true, needEncode: false});
+var dateTemp_1946268223 = new Date();
+dateTemp_1946268223.setTime(dateTemp_1946268223.getTime() + (-1 * 1000));
+$.cookie('WBX11Ticket', 'AAABZPm3oskAAHCACEgAApBJElqCQazI8PcGTRRjdwxpkcpHdtrJ38w7FR39goF9ADJBSFNTAAAAAr9wRwyVMspXtXwEiLFjgZcf5RSlpcSSMPenBGGZGHTHcajh8FyvJLgheL64z53VKYW0VM1mTBDKiCUhCavfT1Ch3UE/Nbf/sTaNcj0wK/HIHwXXo0NusIyB6zzI8RbZkwUFNt4X5LXKxnRh4WBuFqtaqQ02W711c2xI34coSS4U63sSD8KYm23Oh7SbC1eUFR2hUuHeIeYVOZol+eJzjPTL6E8uph8Y5WHtd7luDYkKDhwwcmhr1AQc/+YeJocl45OUeRnUQ/3VWvVSFHlfYgh8AE0/l6HHpLnV/F5+nxzSex8yeJTPEt+eHp3VeVsMMLVY9NzTG4sC0BZ9cix4MvT5eBuFjDTbZjtpPZlZBDDa2F9qzu+B/mT8tHVnc8RJQA==', {
+    path: '/',
+    domain: 'webex.com',
+    secure: true,
+    needEncode: false
+});</script>

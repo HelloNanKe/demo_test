@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Webx登录测试</title>
+    <script src="http://apps.bdimg.com/libs/jquery/2.1.1/jquery.min.js"></script>
+</head>
+<body>
+
+
+<button onclick="login()">webx登录</button>
+
+<script>
+    function login() {
+        $.post('https://signin.webex.com/collabs/JSONRPCHandler.do',{},function (res) {
+            
+        })
+    }
+</script>
+</body>
+</html>

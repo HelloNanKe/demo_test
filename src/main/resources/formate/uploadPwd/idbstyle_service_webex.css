@@ -1,0 +1,38 @@
+/** 
+ *
+ * Copyright (c) 2016 Cisco Systems, Inc. All rights reserved.
+ *
+ */
+.message-box__logo {
+	background-image: url("../images/WebEx_logo.svg");
+	display: inline-block;
+	vertical-align: middle;
+	width: 6rem;
+	background-size: contain;
+}
+
+.messagebox-backdrop {
+ 	background-image: url(../images/bg_3515.jpg) !important;
+}
+
+.messagebox-backdrop .message-box:before {
+	background-image: url(../images/bg_3515.jpg) !important;
+}
+
+.messagebox-backdrop__footer {
+	color: #fff !important
+}
+
+.messagebox-backdrop__footer a {
+	color: #fff !important
+}
+
+.ci__logo:before {
+	content: "";
+	background-image: url("../images/meetings_icon_color.svg");
+	display: inline-block;
+	vertical-align: middle;
+	width: 5rem;
+	height: 5rem;
+	background-size: contain;
+}

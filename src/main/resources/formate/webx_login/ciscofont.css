@@ -1,0 +1,29 @@
+@font-face {
+  font-family: 'ciscosanstt_extralight';
+  src: url('assets/ciscosansextralight-webfont.eot');
+  src: url('assets/ciscosansextralight-webfont.eot?#iefix') format('embedded-opentype'),
+  	   url('assets/ciscosansextralight-webfont.woff') format('woff'), 
+       url('assets/ciscosansextralight-webfont.ttf') format('truetype'), 
+       url('assets/ciscosansextralight-webfont.svg#CiscoSansExtraLight') format('svg');
+  font-weight: normal;
+  font-style: normal;
+}
+
+
+@font-face {
+	font-family: 'ciscosansttregular';
+	src: url('assets/ciscosansregular-webfont.eot');
+	src: url('assets/ciscosansregular-webfont.eot?#iefix')  format('embedded-opentype'), 
+		 url('assets/ciscosansregular-webfont.woff') format('woff'), 
+		 url('assets/ciscosansregular-webfont.ttf') format('truetype'), 
+		 url('assets/ciscosansregular-webfont.svg#CiscoSansReg') format('svg');
+	font-weight: normal;
+	font-style: normal;
+}
+
+
+@font-face {
+  font-family: 'ciscosanslight';
+  font-weight: normal;
+  font-style: normal;
+}

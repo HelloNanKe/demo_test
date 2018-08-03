@@ -1,6 +1,7 @@
 package com.zt.demo_test.util;
 
 
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
@@ -22,10 +23,11 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.zt.demo_test.controller.StaticResourceController.readInputStream;
+//import static com.zt.demo_test.controller.StaticResourceController.readInputStream;
 
 /**
  * @Author: zt
@@ -86,8 +88,7 @@ public class HttpUtils {
             // 设置通用的请求属性
             connection.setRequestProperty("accept", "*/*");
             connection.setRequestProperty("connection", "Keep-Alive");
-            connection.setRequestProperty("user-agent",
-                    "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1;SV1)");
+            connection.setRequestProperty("user-agent", "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1;SV1)");
             // 建立实际的连接
             connection.connect();
             // 获取所有响应头字段
@@ -120,6 +121,63 @@ public class HttpUtils {
         }
         return result;
     }
+
+
+    public static String sendGetAndGetCookie(String url, String param, List cookieList) {
+        String result = "";
+        BufferedReader in = null;
+        try {
+            String urlNameString = url + "?" + param;
+            URL realUrl = new URL(urlNameString);
+            // 打开和URL之间的连接
+            URLConnection connection = realUrl.openConnection();
+            // 设置通用的请求属性
+            connection.setRequestProperty("accept", "*/*");
+            connection.setRequestProperty("connection", "Keep-Alive");
+            connection.setRequestProperty("user-agent", "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1;SV1)");
+
+            for (Object o : cookieList) {
+                System.err.println("发送GET请求,票据信息:"+o.toString());
+
+                String [] cookie=o.toString().split("=");
+                if("WBX11Ticket".equals(cookie[0])){
+                    connection.setRequestProperty("WBX11Ticket",cookie[1]);
+                }
+            }
+
+            // 建立实际的连接
+            connection.connect();
+            // 获取所有响应头字段
+         /*   Map<String, List<String>> map = connection.getHeaderFields();
+            // 遍历所有的响应头字段
+            for (String key : map.keySet()) {
+                System.out.println(key + "--->" + map.get(key));
+            }*/
+            // 定义 BufferedReader输入流来读取URL的响应
+            in = new BufferedReader(new InputStreamReader(
+                    connection.getInputStream()));
+            String line;
+            while ((line = in.readLine()) != null) {
+                result += line;
+            }
+//            System.out.println(result);
+        } catch (Exception e) {
+            System.out.println("发送GET请求出现异常！" + e);
+            e.printStackTrace();
+        }
+        // 使用finally块来关闭输入流
+        finally {
+            try {
+                if (in != null) {
+                    in.close();
+                }
+            } catch (Exception e2) {
+                e2.printStackTrace();
+            }
+        }
+        return result;
+    }
+
 
     /**
      * 向指定 URL 发送POST方法的请求
@@ -178,10 +236,70 @@ public class HttpUtils {
     }
 
 
+    public static Map<String, Object> sendPostGetCokie(String url, String param) {
+        Map<String, Object> resMap = new HashMap<>();
+
+        PrintWriter out = null;
+        BufferedReader in = null;
+        StringBuilder result = new StringBuilder();
+        try {
+            URL realUrl = new URL(url);
+            // 打开和URL之间的连接
+            URLConnection conn = realUrl.openConnection();
+
+            // 设置通用的请求属性
+            conn.setRequestProperty("accept", "*/*");
+            conn.setRequestProperty("connection", "Keep-Alive");
+            conn.setRequestProperty("user-agent", "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1;SV1)");
+            // 发送POST请求必须设置如下两行
+            conn.setDoOutput(true);
+            conn.setDoInput(true);
+
+            // 获取URLConnection对象对应的输出流
+            out = new PrintWriter(conn.getOutputStream());
+            // 发送请求参数
+            out.print(param);
+            // flush输出流的缓冲
+            out.flush();
+
+//            获取返回的头部信息
+            Map<String, List<String>> map = conn.getHeaderFields();
+//获取cookie信息
+            List cookies = map.get("Set-Cookie");
+            resMap.put("cookie", cookies);
+
+            // 定义BufferedReader输入流来读取URL的响应
+            in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+            String line;
+            while ((line = in.readLine()) != null) {
+                result.append(line);
+            }
+            resMap.put("result", result.toString());
+        } catch (Exception e) {
+            System.out.println("发送 POST 请求出现异常！" + e);
+            e.printStackTrace();
+        }
+        //使用finally块来关闭输出流、输入流
+        finally {
+            try {
+                if (out != null) {
+                    out.close();
+                }
+                if (in != null) {
+                    in.close();
+                }
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        }
+        return resMap;
+    }
+
+
     /*
      * 处理https GET/POST请求 请求地址、请求方法、参数
      */
-    public static String doHttpsRequest(String requestUrl, String param,String method) {
+    public static String doHttpsRequest(String requestUrl, String param, String method) {
         StringBuffer buffer = null;
         try {
             // 创建SSLContext
@@ -309,6 +427,18 @@ public class HttpUtils {
 
         }
         return null;
+    }
+
+
+    public static byte[] readInputStream(InputStream inStream) throws Exception {
+        ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+        byte[] buffer = new byte[1024];
+        int len = 0;
+        while ((len = inStream.read(buffer)) != -1) {
+            outStream.write(buffer, 0, len);
+        }
+        inStream.close();
+        return outStream.toByteArray();
     }
 
 
