@@ -1,0 +1,126 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <title>Cisco WebEx Meetings</title>
+    <link rel="Shortcut Icon" href="/favicon.ico" />
+    <link rel="Bookmark" href="/favicon.ico" />
+
+    <link type="text/css" href="https://w11sc3.ciscowebex.com/collabs/resource/css/wbxcommon.min_72d959c5.css" rel="stylesheet">
+    <link type="text/css" href="https://w11sc3.ciscowebex.com/collabs/resource/css/wbxmodule.min_31cbd999.css" rel="stylesheet">
+    <link type="text/css" href="https://w11sc1.ciscowebex.com/collabs/webim/themes/default/webim_479726cc.css" rel="stylesheet">
+
+</head>
+<body>
+<div id="container">
+    <div id="wrapper">
+        <input type="hidden" id="identity" name="identity" value=""/>
+        <!--define doctype head meat, include css-->
+
+
+        <noscript>
+            <div class="top-notice">
+                <div class="top-notice-inner">
+                    <div class="top-notice-c">
+                        It appears that JavaScript is not enabled on your computer, so some WebEx functions will not work. To learn how to enable JavaScript, <a href="/collabs/support/nojs">go here</a>.      </div>
+                </div>
+            </div>
+        </noscript>
+
+        <div id="globalinfo"></div>
+
+
+        <div id="pageBody"></div>
+
+
+
+        <script type="text/javascript">
+            WBX = {
+                component: {},
+                app: {}
+            };
+        </script>
+        <!--Client Framework-->
+        <script type="text/javascript">
+            if(typeof(WWF)=='undefined' || !WWF.CONFIG){WWF = {};
+                WWF.CONFIG = {
+                    timezone: -12.0,
+                    orgName: "",
+                    orgType: "1",
+                    serverTime: "6 Aug 2018 01:53:45 GMT",
+                    lang: "en_US",
+                    region: 2,
+                    timeagoLang: "en_US",
+                    time24: false,
+                    timeZone: 0,
+                    frameworkURL: "/collabs",
+                    loginURL: "\x2fcollabs\x2fauth",
+                    noPrivilegeURL: "\x2fcollabs\x2fauth",
+                    commonErrorURL: "\x2fcollabs\x2fglobalError",
+                    userDefaultIcon: "https\x3a\x2f\x2fw11sc2.ciscowebex.com\x2fcollabs\x2flocal_domain_res\x2fcommon\x2favatar_24_e9ffcd3e.png",
+                    contextPath: "/collabs",
+                    buildNumber: "1.0",
+                    pageRefreshFrequency: 20,
+                    resFolder: "collabsres0103l",
+                    isProduct: true,
+                    secureCookie: true,
+                    dayLightSavingTime: [[946598400000,1609459200000,-12.0]],
+                    autoCorrectDomain: true,
+                    enforcePOST: true,
+                    csrf_token: "73b2387a-7681-4c9a-8a11-0f96c6956790",
+                    isLoggedIn: false
+                };
+            }
+            if(!WWF.SESSION){WWF.SESSION = {
+                commonSession: {
+                    linkClickable: "1"	   }
+            };
+            }
+            if(!WWF.USERICON){WWF.USERICON = {
+                "defaultIcon24": "https\x3a\x2f\x2fw11sc2.ciscowebex.com\x2fcollabs\x2flocal_domain_res\x2fcommon\x2favatar_24_e9ffcd3e.png",
+                "defaultIcon40": "https\x3a\x2f\x2fw11sc3.ciscowebex.com\x2fcollabs\x2flocal_domain_res\x2fcommon\x2favatar_40_2c986265.png",
+                "defaultIcon48": "https\x3a\x2f\x2fw11sc2.ciscowebex.com\x2fcollabs\x2flocal_domain_res\x2fcommon\x2favatar_48_c7f6c262.png"
+            };
+            }
+            if(!WWF.DATEFORMAT){WWF.DATEFORMAT = {
+                "datepicker": {
+                    "long": "m/d/yy",
+                    "short": "m/d"
+                }};
+            }
+        </script>
+        <script type="text/javascript" src="https://w11sc2.ciscowebex.com/collabs/resource/js_1.3.36.0_5/wbx.base.min_en_US.js"></script>
+        <script type="text/javascript" src="https://w11sc3.ciscowebex.com/collabs/resource/js_1.3.36.0_5/timeago_en_US.js"></script>
+        <script type="text/javascript" src="https://w11sc2.ciscowebex.com/collabs/resource/js_1.3.36.0_5/wbx.extend.min_en_US.js"></script>
+        <script type="text/javascript" src="https://w11sc3.ciscowebex.com/collabs/resource/js_1.3.36.0_5/wbx.component.min_en_US.js"></script>
+
+        <input id="webimI18NJSURL" type="hidden" value="https://w11sc1.ciscowebex.com/collabs/webim/nls/resource_en_US_5b6bbb0f.js"/>
+        <input id="webimJSURL" type="hidden" value="https://w11sc3.ciscowebex.com/collabs/webim/webimall_94b54243.js"/>
+
+        <script>
+            $(function(){
+                var initPage = function() {
+                    WWF.request.setServiceURL(WWF.CONFIG.frameworkURL + "/JSONRPCHandler.do");
+                    WWF.frame.init();
+                    var sPlatform = WWF.platform;
+                    var sBrowser = WWF.browser;
+                    if (!(WWF.isTouchDevice || sBrowser.ie7 || sBrowser.ie6 || sBrowser.ie5)) {
+                        window.setTimeout(function() {
+                            WWF.loadScript($('#webimI18NJSURL').val(), function() {
+                                WWF.loadScript($('#webimJSURL').val(), function() {
+                                    webim.init();
+                                });
+                            });
+                        }, 200);
+                    }
+                };
+                initPage();
+            });
+        </script>
+    </div></div>
+</body>
+</html><script type="text/javascript">
+    var dateTemp_1878397266 = new Date();
+    dateTemp_1878397266.setTime(dateTemp_1878397266.getTime() + (-1 * 1000));
+    $.cookie('wbxSessionID', 'DF5C4323656B3E9EE4A1355DED0B9DA2', {path: '/', secure: true, needEncode: false});</script>

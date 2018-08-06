@@ -8,6 +8,7 @@ import org.apache.http.Header;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
@@ -23,7 +24,7 @@ import java.util.*;
  * @Date: 2018/7/30 11:16
  */
 @Controller
-@RequestMapping(value = "")
+@RequestMapping(value = "/webex")
 public class WebexController {
 
 
@@ -44,6 +45,7 @@ public class WebexController {
     private static final String TICKT_URL = "https://meetings.webex.com/collabs/auth/ssologin?backlink=https%3A%2F%2Fmeetings.webex.com%2Fcollabs%2Fauth&service=wbx11&from=default&email=nankezt%40gmail.com";
 
     private static final String TICKT_URL1 = "https://meetings.webex.com/collabs/auth/ssologin";
+
     //4.请求首页的信息
     private static final String INDEX_URL = "https://meetings.webex.com/collabs/";
 
@@ -136,7 +138,7 @@ public class WebexController {
 
 
     @RequestMapping(value = "**/**")
-    public void TestHttps(HttpServletRequest request,HttpServletResponse response) {
+    public void TestHttps(HttpServletRequest request, HttpServletResponse response) {
         System.out.println(request.getRequestURI());
         List<NameValuePair> ticketParam = new ArrayList<>();
 //        链接里的参数
@@ -147,7 +149,7 @@ public class WebexController {
 //body里的参数
         ticketParam.add(new BasicNameValuePair("userId", "UCWXC1JTZ97Z9ZM8IYOC17W31Z-4O2"));
         ticketParam.add(new BasicNameValuePair("email", "nankezt@gmail.com"));
-        ticketParam.add(new BasicNameValuePair("token", "AAABZP7qs8kAAHCACEgAAord3KOLzffs6m7rxvyDnNtktq6yqUiYPm3/x9h2/toYADJBSFNTAAAAAkAZRV7mfZavipixLpNw6qluAN6Kvqu4jgmvq73TznVtnuu79bLPBcrhqatjnAFJnJ/VYKYoj2fV8tmNhLWN/ddCcGzNlmKNGpFScNejmsrIKw6GhhtC5guLpECkj2WWtvVAQGKHurVni8OwJA4OHlo1bHHEB/CEHY2bDrkiIdvaMSDDSk8JwHdXMa4BGDolHSWgH64I1ZpT8kU5E0rEDSnFWJz1yXVLJG7CrlfNZEeUB4J+Hra4oJYR8DHeAL2geWCvAP9QhEeumyOVAdGFIJzAR04fPrcCJRWWCrrC+s3qDZw8aVzQNTylj3UXgqidHnKNAHpwgLaNQg0jlD8fXD4BZAu53NxuYN+gImMZYsC/vggsJmfLveVtk4oIm5S+dw=="));
+        ticketParam.add(new BasicNameValuePair("token", "AAABZQzaGQ8AAHCACEgAAiD2xGRIOMBJCwwLqre3w5ldBT0F3WBHQWDLVGVKs17FADJBSFNTAAAAApg4S74jRgK3sTz2DP9jmMyTVanCid6oQB5pf8ePAzI8EChUlGFjwtO7EzJphjMD7NNg9G1cMV/Twvx5YjctUI/Ux7HKadN0yHU9CW7HqoT9OT5m/mwqDXZOGpI/yhBswTrGmHVaKrMwx+N32frKL6rgzmnp2CRafDfLvyDqD3UAAdJEIHnzseKaUPgPFQJHVmIfO2cJTFyWXtwcFmTV1DZHdm8a5j7bPXw8F8N4pZYjOGOGs4JpkS0UPK2FTIjl8o950dGZTU6KofTe6gyxaZYuZRpFzBb3QIKz3DQ46/Ud9XKZe5qpC0Ryyj3Zz1OeJKj2rqLvUGop/t3VCy7str+29Nz9V/TYZW/vgb14Qwwth9DH9EqUI+8mz3fYKYDB2g=="));
         ticketParam.add(new BasicNameValuePair("createtime", new Date().toString()));
         ticketParam.add(new BasicNameValuePair("timetolive", "28800"));
         ticketParam.add(new BasicNameValuePair("serviceurl", "dfwapi-sj1-tx1.webex.com/wbxconnect"));
@@ -155,7 +157,7 @@ public class WebexController {
         ticketParam.add(new BasicNameValuePair("collabsurl", "meetings.webex.com"));
         ticketParam.add(new BasicNameValuePair("boshURL", "https://im6.ciscowebex.com/http-bind"));
         ticketParam.add(new BasicNameValuePair("jabberID", "nankezt.gmail.com@meetings.im.webex.com"));
-        ticketParam.add(new BasicNameValuePair("jabberToken", "CBL3P7kuDjfDyrSf6OOY/2Eqv6uG2OWVcFGiROmSgLiu9/8IBpTlE/YS/0/mIg3UQ3yGItQHzRaj4cK2y/5cbwpqj+A5FEsgEorztD1A/i6bo1q4nOJdgoeqh1SGqz1/MboDFsNeFZZE+3Ry0MyfpBMTqzw+SEjtZWZlXCz5ugLUsqxmo6fp4V1pIqzwXkTSBHnZaoJnlodiBTOzIKkNSOYi2uU/ch2AVmsKtRleFe4jj83B6bRtKpfKmtvzAZTR6m99UsH/Dnkgadmbjtg57wya7CIqVpoBgaUeIIqWMrxeZR4mcSDoAQv4eJkfmPZ9Su/kmCrY6wb4jN38gahlIrSuD96WF2pxLkzRIDH2bq7iVQj9FJw2iuRKEFoHDdUouOaqbKyM2fPQeYCHSJw6PdJJ51hpMdJyiezae1VhrHw="));
+        ticketParam.add(new BasicNameValuePair("jabberToken", "RdyOmU9FOYYC5H7/6Swra4WUM9kH4IjBUEViiFxMUlLRoXK7UiL5gHaKIpEmQkSHLcmXh3ViRGohNO450EHXXRzl9XnGKd91+w1tCJomRVffsijyiJ15QwTKVTJKi8D16j467eX/t7nSmyFAUQdCBe9dU1FSe5Jrfm5uQe92xi69HN8hxCnpKSnTJVO4xlBfH70b3akAsIlehbuM32xQyQ9vs/uHCrRRNmqonkkBF/fKomy3iREt+auAIwvrwSEgjqYfePAxuvI6rsSwoUlBfghHw61Z5u0JO9T6illgejgD1Gi+vARAn1N0/8Qb8YeyKH/5NAo8cKe3SdylesRMIF2uhq/fOWBjacSF933shhF95/DVAvBKETPbWlJvtL3628PMnC9bDLo6OPd/1Bg3gWfsBiyjcv6GTlASaz/ZPCE="));
         ticketParam.add(new BasicNameValuePair("jabberCluster", "isj6cmx-gw.webexconnect.com"));
         ticketParam.add(new BasicNameValuePair("jabberName", "isj6"));
         ticketParam.add(new BasicNameValuePair("orglevel", "WAPI2"));
@@ -164,20 +166,22 @@ public class WebexController {
         ticketParam.add(new BasicNameValuePair("cisKeepMeSignedIn", "false"));
 
         Map<String, Object> resMap = HttpClientUtil.doPost(TICKT_URL1, ticketParam, "UTF-8");
+
 //        System.err.println("res=" + res);
         Header[] headers = (Header[]) resMap.get("headers");
 
         String tokenTicket = null;
         for (Header header : headers) {
-            System.err.println(header.getName() + "----->" + header.getValue());
+
+            System.err.println(header.getName() + " （第一次：collabs/auth/ssologin----->）" + header.getValue());
 
             if (header.getValue().startsWith("WBX11Ticket")) {
-                response.addHeader(header.getName(),header.getValue());
+                response.addHeader(header.getName(), header.getValue());
                 tokenTicket = header.getValue();
             }
 
-            if(header.getValue().startsWith("wbxSessionID")){
-                response.addHeader(header.getName(),header.getValue());
+            if (header.getValue().startsWith("wbxSessionID")) {
+                response.addHeader(header.getName(), header.getValue());
             }
 
         }
@@ -187,10 +191,10 @@ public class WebexController {
 //        带上票据去请求首页的源码
         Map<String, Object> map = getIndexHtml(tokenTicket);
 
-        String result= (String) map.get("res");
+        String result = (String) map.get("res");
 
         try {
-            PrintWriter out=response.getWriter();
+            PrintWriter out = response.getWriter();
             out.write(result);
             out.flush();
 
@@ -209,20 +213,23 @@ public class WebexController {
      * @return
      */
     private Map<String, Object> getIndexHtml(String tokenTicket) {
-        String [] tokens=tokenTicket.split("=");
+        if (StringUtils.isEmpty(tokenTicket)) {
+            return null;
+        }
+        String[] tokens = tokenTicket.split("=");
 
-        System.err.println(tokens[0]+"+++++++++++++++++++++++++"+tokens[1]);
+        System.err.println(tokens[0] + "+++++++++++++++++++++++++" + tokens[1]);
         Map<String, String> headerMap = new HashMap<>();
         headerMap.put("amlbcookie", "16");
         headerMap.put("athena_cache_webim_offlined", "false");
         headerMap.put("backend", "PM");
-        headerMap.put("cisPRODiPlanetDirectoryPro", "AQIC5wM2LY4SfcwtCwA5RtMeiTSeU6DUfsTIeoY9-fswpPQ.*AAJTSQACMDIAAlNLABItODc0Njg2OTY5ODA3ODk0MjMAAlMxAAIxNg..*");
-        headerMap.put("CK_W11_CDNHostStatus", "AZKP%7Cakamaicdn.webex.com%7C1%7C1533284678686%7C120");
+        headerMap.put("cisPRODiPlanetDirectoryPro", "AQIC5wM2LY4SfcwjeeyqyGGWypAlVTQMSzYXUWw6W4bE1tc.*AAJTSQACMDIAAlNLABQtNTg3NzgxODI3Mzg4NDA5MjQzNAACUzEAAjE2*");
+        headerMap.put("CK_W11_CDNHostStatus", "AZKP%7Cakamaicdn.webex.com%7C1%7C1533295418834%7C120");
         headerMap.put("clientJodaID", "Asia%2FShanghai");
         headerMap.put("directlanding", "true");
         headerMap.put("WBX11Ticket", tokens[1]);
         headerMap.put("wbxSessionID", "84CD83B265D5FD6850262CC8860DBE21");
-        headerMap.put("Referer","https://cas.webexconnect.com/cas/SAML2AuthService.do?RelayState=s2fe05a96904da1ea4d0d77bcc5a1a85baa8edb3e1");
+        headerMap.put("Referer", "https://cas.webexconnect.com/cas/SAML2AuthService.do?RelayState=s2fe05a96904da1ea4d0d77bcc5a1a85baa8edb3e1");
         String res = HttpClientUtil.doGet(INDEX_URL2, headerMap, "UTF-8");
 
         Map<String, Object> map = new HashMap<>();
