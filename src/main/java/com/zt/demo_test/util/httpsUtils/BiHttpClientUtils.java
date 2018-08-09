@@ -35,7 +35,7 @@ public class BiHttpClientUtils {
      * @param charset
      * @return
      */
-    public static Map<String, Object> doPost(String url, List<NameValuePair> list, String charset, String queryStr) {
+    public static Map<String, Object> doPost(String url, List<NameValuePair> list,Map<String,String> headerMap, String charset, String queryStr) {
 
         if (StringUtils.isEmpty(charset)) {
             charset = "UTF-8";
@@ -52,6 +52,16 @@ public class BiHttpClientUtils {
                 httpPost = new HttpPost(url);
             } else {
                 httpPost = new HttpPost(url + "?" + queryStr);
+
+                if(queryStr.endsWith("getrootreports")||queryStr.endsWith("check_toast")){
+                    StringBuilder cookie = new StringBuilder();
+
+                    for (String key : headerMap.keySet()) {
+                        cookie.append(key).append("=").append(headerMap.get(key)).append("; ");
+                    }
+                    System.out.println("cookie++++" + cookie);
+                    httpPost.addHeader("Cookie", cookie.toString());
+                }
             }
             if (!CollectionUtils.isEmpty(list)) {
                 UrlEncodedFormEntity entity = new UrlEncodedFormEntity(list, charset);
@@ -94,6 +104,7 @@ public class BiHttpClientUtils {
         if (null == charset) {
             charset = "utf-8";
         }
+
         HttpClient httpClient = null;
         HttpGet httpGet = null;
         String result = null;
@@ -107,13 +118,14 @@ public class BiHttpClientUtils {
             }
 
 
-           /* if (queryStr.startsWith("formlet=demo/homepage")) {
+            if (queryStr.endsWith("ttf")||queryStr.endsWith("woff")) {
                 httpGet.addHeader("Referer", "https://bi.nabeluse.com/ReportServer?op=fs");
-            }*/
-            if (!CollectionUtils.isEmpty(headerMap)) {
+                httpGet.addHeader("Origin", "https://bi.nabeluse.com");
+            }
 
+            if (!CollectionUtils.isEmpty(headerMap)) {
                 //首页加载的主页面需要携带cookie信息
-                if (queryStr.startsWith("formlet=demo/homepage")) {
+                if (queryStr.startsWith("formlet=demo/homepage")||queryStr.endsWith("cmd=check_toast")) {
                     StringBuilder cookie = new StringBuilder();
 
                     for (String key : headerMap.keySet()) {
@@ -126,8 +138,9 @@ public class BiHttpClientUtils {
                         httpGet.addHeader(key, headerMap.get(key));
                     }
                 }
-
             }
+
+
             HttpResponse response = httpClient.execute(httpGet);
             resMap.put(BiKey.HEADERS, response.getAllHeaders());
             resMap.put(BiKey.STATUS_CODE, response.getStatusLine().getStatusCode());

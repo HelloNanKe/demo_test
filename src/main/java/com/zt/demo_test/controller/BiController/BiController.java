@@ -57,17 +57,18 @@ public class BiController {
         Map<String, Object> resMap = BiHttpClientUtils.doGet(ssoLoginUrl, null, "UTF-8", "");
         Header[] headers = (Header[]) resMap.get(BiKey.HEADERS);
         String res = (String) resMap.get(BiKey.RES);
+        System.out.println(res);
         String cookieInfo = null;
         for (Header header : headers) {
             if (header.getValue().startsWith("JSESSIONID")) {
                 cookieInfo = header.getValue();
             }
-            System.out.println(header.getName() + "-----header----" + header.getValue());
+//            System.out.println(header.getName() + "-----header----" + header.getValue());
         }
         String pageType = (String) resMap.get(BiKey.PAGETYPE);
         response.setContentType(pageType);
-        System.out.println("页面类型:" + pageType);
-        System.out.println("bi登录:" + res);
+//        System.out.println("页面类型:" + pageType);
+//        System.out.println("bi登录:" + res);
 
 
         Map<String, String> indexMap = new HashMap<>();
@@ -82,7 +83,7 @@ public class BiController {
         indexMap.put("cookie", jsessionId[0]);
         Map<String, Object> indexResMap = BiHttpClientUtils.doGet(indexHtml, indexMap, "UTF-8", "");
         String html = (String) indexResMap.get(BiKey.RES);
-        System.out.println("html========>" + html);
+//        System.out.println("html========>" + html);
         try {
             PrintWriter out = response.getWriter();
             out.write(html);
@@ -95,21 +96,25 @@ public class BiController {
 
     @RequestMapping(value = "/ReportServer/**")
     public void all(HttpServletRequest request, HttpServletResponse response) {
-        System.out.println("method:" + request.getMethod());
-        System.err.println(request.getRequestURI() + "?" + request.getQueryString());
+
+        System.out.println("method:" + request.getMethod()+"---"+request.getRequestURI()+"?"+request.getQueryString());
+
         cookieMap.put("fr_password","");
         cookieMap.put("fr_remember","false");
         cookieMap.put("fr_usernmae",USERNAME);
 
         Map<String, Object> resMap = null;
-        if ("GET".equals(request.getMethod())) {
-            resMap = BiHttpClientUtils.doGet(server_pre + request.getRequestURI(), cookieMap, "UTF-8", request.getQueryString());
-            response.setContentType(resMap.get(BiKey.PAGETYPE).toString());
-        } else {
-            resMap = BiHttpClientUtils.doPost(server_pre + request.getRequestURI(), null, "", request.getQueryString());
-        }
+
         PrintWriter out = null;
+
         try {
+            if ("GET".equals(request.getMethod())) {
+                resMap = BiHttpClientUtils.doGet(server_pre + request.getRequestURI(), cookieMap, "UTF-8", request.getQueryString());
+                response.setContentType(resMap.get(BiKey.PAGETYPE).toString());
+            } else {
+                resMap = BiHttpClientUtils.doPost(server_pre + request.getRequestURI(), null,cookieMap, "", request.getQueryString());
+            }
+            System.err.println(request.getRequestURI() + "?" + request.getQueryString()+"-----------》请求返回码:"+resMap.get(BiKey.STATUS_CODE));
             response.setStatus((Integer) resMap.get(BiKey.STATUS_CODE));
             out = response.getWriter();
             out.write(resMap.get(BiKey.RES).toString());

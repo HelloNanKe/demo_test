@@ -1,0 +1,9 @@
+/*https://bi.nabeluse.com//ReportServer?op=emb&resource=finereport.local.css*/
+
+@font-face {
+    font-family: 'fui';
+    src: url('/ReportServer?op=resource&resource=/com/fr/fs/resources/fonts/iconfont.eot?#iefix') format('embedded-opentype'),
+    url('/ReportServer?op=resource&resource=/com/fr/fs/resources/fonts/iconfont.woff') format('woff'),
+    url('/ReportServer?op=resource&resource=/com/fr/fs/resources/fonts/iconfont.ttf') format('truetype'),
+    url('/ReportServer?op=resource&resource=/com/fr/fs/resources/fonts/iconfont.svg#svgFontName') format('svg')
+}
